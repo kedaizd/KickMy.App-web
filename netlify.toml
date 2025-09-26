@@ -1,9 +1,7 @@
 [build]
-  # Upewnia się, że komenda budowania jest poprawna
   command = "npm run build"
   publish = "dist"
 
-# Wymusza poprawne nagłówki dla serwowanych plików JavaScript
 [[headers]]
   for = "/*.js"
   [headers.values]
@@ -13,3 +11,7 @@
   for = "/*.jsx"
   [headers.values]
     Content-Type = "text/javascript"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react'
+import React, { useState } from 'react'
 import { exportZip, exportConfigJson } from '../exporter'
 import { getTranslation } from './i18n';
 
@@ -12,8 +12,16 @@ const btnStyle = { fontFamily, fontSize: 15, fontWeight: 500, borderRadius: 8, p
 const tableStyle = { fontFamily, fontSize: 15, width: '100%', borderCollapse: 'collapse', marginBottom: 8 };
 const thtd = { padding: '6px 8px', textAlign: 'left', borderBottom: '1px solid #e5e7eb' };
 
-import { useState } from 'react';
-
+const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    const result = reader.result || '';
+    const base64 = typeof result === 'string' ? result.split(',').pop() : '';
+    resolve(base64 || '');
+  };
+  reader.onerror = reject;
+  reader.readAsDataURL(blob);
+});
 export default function RightPanel({ cfg, priceData, update, showRight, setShowRight }){
   const t = getTranslation(cfg);
   // Determine package price
@@ -62,28 +70,40 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
         className="btn btn-primary"
         style={{ ...btnStyle, background: '#2563eb', color: '#fff', marginTop: 8 }}
         onClick={async () => {
-          // Export ZIP (with JSON) and send order email
-          const zipBlob = await exportZip(cfg, { returnBlob: true, includeJson: true });
-          const formData = new FormData();
-          formData.append('cfg', JSON.stringify(cfg));
-          formData.append('zip', zipBlob, 'strona.zip');
-          formData.append('invoiceName', cfg.invoice?.name || '');
-          formData.append('invoiceNip', cfg.invoice?.nip || '');
-          formData.append('invoiceAddress', cfg.invoice?.address || '');
-          formData.append('deliveryEmail', cfg.invoice?.deliveryEmail || '');
-          await fetch('http://localhost:5173/api/send-order', {
-            method: 'POST',
-            body: formData
-          });
-          alert(t.rightPanel?.orderSent || 'Zamówienie zostało wysłane! Skontaktujemy się z Tobą wkrótce.');
-          // Download the ZIP for the user
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(zipBlob);
-          link.download = 'kickmy-export.zip';
-          link.click();
+          try {
+            const zipBlob = await exportZip(cfg, { returnBlob: true, includeJson: true });
+            const zipBase64 = await blobToBase64(zipBlob);
+            const payload = {
+              cfg,
+              zip: zipBase64,
+              invoice: {
+                name: cfg.invoice?.name || '',
+                nip: cfg.invoice?.nip || '',
+                address: cfg.invoice?.address || '',
+                deliveryEmail: cfg.invoice?.deliveryEmail || ''
+              },
+              notes: jsonNotes || ''
+            };
+            const response = await fetch('/.netlify/functions/send-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+              throw new Error('Request failed: ' + response.status);
+            }
+            alert(t.rightPanel?.orderSent || 'Zamowienie zostalo wyslane! Skontaktujemy sie z Toba wkrotce.');
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(zipBlob);
+            link.download = 'kickmy-export.zip';
+            link.click();
+          } catch (err) {
+            console.error('Order submission failed', err);
+            alert(t.rightPanel?.orderError || 'Nie udalo sie wyslac zamowienia. Sprobuj ponownie lub skontaktuj sie bezposrednio.');
+          }
         }}
       >
-        {t.rightPanel?.orderBtn || 'Składam zamówienie'}
+        {t.rightPanel?.orderBtn || 'Skladam zamowienie'}
       </button>
     </div>
 
@@ -91,3 +111,9 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
     {/* Opublikuj stronę section removed as requested */}
   </>
 }
+
+
+
+
+
+
