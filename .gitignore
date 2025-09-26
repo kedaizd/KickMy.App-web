@@ -1,5 +1,14 @@
-node_modules
-dist
+# Ignoruj globalne node_modules dla głównego projektu
+/node_modules/
+
+# Ignoruj katalog dist generowany przez bundler
+/dist/
+
+# Pozostałe wpisy...
 .vite
 .DS_Store
 *.log
+
+# !!! WAŻNE: Nie ignoruj node_modules wewnątrz katalogu funkcji Netlify
+!/netlify/functions/node_modules/
+
