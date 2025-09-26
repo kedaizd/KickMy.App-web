@@ -1,0 +1,57 @@
+{
+  "hero": {
+    "title": "Welcome!",
+    "desc": "Short offer description",
+    "ctaContact": "Contact us",
+    "ctaOffer": "See offer"
+  },
+  "promo": {
+    "header": "Current promotions",
+    "discount": "Discount",
+    "text": "Promotion description",
+    "endDate": "Promotion valid until:",
+    "terms": "Promotion terms"
+  },
+  "pricing": {
+    "header": "Pricing",
+    "price": "Price"
+  },
+  "contact": {
+    "header": "Contact",
+    "phone": "Phone",
+    "email": "E-mail",
+    "address": "Address",
+    "city": "City",
+    "send": "Send"
+  },
+  "usp": {
+    "header": "Why us"
+  },
+  "whyus": {
+    "header": "Why us"
+  },
+  "faq": {
+    "header": "FAQ",
+    "question": "Question...",
+    "noAnswer": "No answer"
+  },
+  "testimonials": {
+    "header": "Testimonials",
+    "author": "Client",
+    "cta": "Add a review on Google"
+  },
+  "map": {
+    "header": "Map"
+  },
+  "gallery": {
+    "header": "Gallery"
+  },
+  "newsletter": {
+    "header": "Newsletter",
+    "placeholder": "Your e-mail",
+    "cta": "Subscribe"
+  },
+  "footer": {
+    "generated": "Generated in KickMy.App"
+  }
+}
