@@ -8,6 +8,3 @@
 .vite
 .DS_Store
 *.log
-
-# !!! WAŻNE: Nie ignoruj node_modules wewnątrz katalogu funkcji Netlify
-!/netlify/functions/node_modules/
