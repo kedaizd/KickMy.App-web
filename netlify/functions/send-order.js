@@ -1,3 +1,9 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+
+const STORAGE_DIR = process.env.ORDER_STORAGE_PATH || path.join(process.env.TEMP || '/tmp', 'kickmy-orders');
+
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ message: 'Method not allowed' }) };
@@ -17,13 +23,27 @@ export const handler = async (event) => {
 
     const zipBuffer = Buffer.from(zip, 'base64');
 
-    // TODO: send the payload to your CRM, email service, or persistent storage.
+    const orderId = invoice?.number ? String(invoice.number) : crypto.randomUUID();
+    const sanitizedOrderId = orderId.replace(/[^\w-]+/g, '_') || crypto.randomUUID();
+    const filePath = path.join(STORAGE_DIR, `${Date.now()}-${sanitizedOrderId}.json`);
+    const storedPayload = {
+      receivedAt: new Date().toISOString(),
+      cfg,
+      invoice,
+      notes,
+      zip
+    };
+
+    await fs.mkdir(STORAGE_DIR, { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(storedPayload));
+
     console.log('Received order:', {
       brand: cfg?.brand?.title,
       sections: Array.isArray(cfg?.sections) ? cfg.sections.length : 0,
       invoice,
       notes,
-      zipSize: zipBuffer.length
+      zipSize: zipBuffer.length,
+      storedAt: filePath
     });
 
     return {
