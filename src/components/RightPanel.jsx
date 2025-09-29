@@ -51,13 +51,12 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
 
       // 5) Wyślij do Netlify Function
       const res = await fetch('/.netlify/functions/send-order', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'authorization': `Bearer ${import.meta.env.VITE_ORDER_WEBHOOK_TOKEN || ''}`
-        },
-        body: JSON.stringify({ orderId, contact, invoice, config, zipBase64 })
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(payload)
+});
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

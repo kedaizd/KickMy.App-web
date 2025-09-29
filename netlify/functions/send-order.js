@@ -1,144 +1,224 @@
 // netlify/functions/send-order.js
-import { Resend } from 'resend'
-import { getStore as getBlobsStore } from '@netlify/blobs'
-import fs from 'fs'
-import path from 'path'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*'
-const TOKEN = process.env.ORDER_WEBHOOK_TOKEN
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
 
-// === Blobs helper z fallbackiem na filesystem ===
-function blobsAuth() {
-  let siteID = process.env.NETLIFY_SITE_ID
-  let token  = process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN
-  // fallback: weź siteId z .netlify/state.json
-  if (!siteID) {
-    try {
-      const p = path.join(process.cwd(), '.netlify', 'state.json')
-      const j = JSON.parse(fs.readFileSync(p, 'utf8'))
-      if (j?.siteId) siteID = j.siteId
-    } catch { /* ignore */ }
-  }
-  return { siteID, token }
+/**
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Konfiguracja
+ * ──────────────────────────────────────────────────────────────────────────────
+ * ENV (ustaw w Netlify → Site settings → Build & deploy → Environment):
+ * - ALLOWED_ORIGIN         np. https://twojadomena.pl  (dla dev: http://localhost:8888)
+ * - ORDER_STORAGE_PATH     np. data/orders            (opcjonalne; wzgl. do katalogu funkcji)
+ * - RESEND_API_KEY         klucz do Resend (opcjonalne wysyłanie e-maila)
+ * - ORDER_EMAIL_FROM       np. orders@twojadomena.pl  (opcjonalne)
+ * - ORDER_EMAIL_TO         np. biuro@twojadomena.pl   (opcjonalne)
+ *
+ * Uwaga: ŻADNYCH sekretów w VITE_*! Frontend nie przesyła tokenów.
+ */
+
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
+const ORDER_STORAGE_PATH = process.env.ORDER_STORAGE_PATH || "data/orders";
+
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const ORDER_EMAIL_FROM = process.env.ORDER_EMAIL_FROM || "";
+const ORDER_EMAIL_TO = process.env.ORDER_EMAIL_TO || "";
+
+/**
+ * Prosty rate-limit w pamięci procesu: max 20 żądań / IP / minutę.
+ * W Netlify Functions instancje mogą się przegrupowywać, więc to jest best-effort.
+ */
+const RATE = {
+  windowMs: 60 * 1000,
+  max: 20,
+};
+global.__rl = global.__rl || new Map();
+
+function hit(ip) {
+  const now = Date.now();
+  const arr = (global.__rl.get(ip) || []).filter((t) => now - t < RATE.windowMs);
+  arr.push(now);
+  global.__rl.set(ip, arr);
+  return arr.length <= RATE.max;
 }
 
-function getOrdersStore() {
-  // Spróbuj prawdziwych Blobs
-  try {
-    const auth = blobsAuth()
-    if (auth.siteID && auth.token) {
-      return getBlobsStore('orders', auth)
-    }
-  } catch (_) { /* przejdź do fallbacku */ }
-
-  // Fallback: lokalny filesystem, zgodny w API z tym czego używamy
-  const baseDir = path.join(process.cwd(), '.local-blobs', 'orders')
-  fs.mkdirSync(baseDir, { recursive: true })
+function buildCorsHeaders(origin) {
   return {
-    async set(key, value) {
-      const file = path.join(baseDir, key)
-      const buf = Buffer.isBuffer(value) ? value : Buffer.from(value)
-      fs.writeFileSync(file, buf)
+    "Access-Control-Allow-Origin": origin || "",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
+function ensureDirSync(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+function safeId(id) {
+  if (typeof id !== "string" || !id.trim()) {
+    return crypto.randomUUID();
+  }
+  // Wytnij niebezpieczne znaki z ID do nazwy pliku
+  return id.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
+}
+
+function nowStamp() {
+  const d = new Date();
+  const pad = (n) => n.toString().padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(
+    d.getUTCHours()
+  )}-${pad(d.getUTCMinutes())}-${pad(d.getUTCSeconds())}Z`;
+}
+
+/**
+ * Opcjonalny e-mail przez Resend
+ */
+async function maybeSendEmail({ subject, text, html }) {
+  if (!RESEND_API_KEY || !ORDER_EMAIL_FROM || !ORDER_EMAIL_TO) return { sent: false, reason: "email-not-configured" };
+
+  const payload = {
+    from: ORDER_EMAIL_FROM,
+    to: [ORDER_EMAIL_TO],
+    subject: subject || "New order",
+    text: text || "",
+    html: html || `<pre>${text ? escapeHtml(text) : "New order"}</pre>`,
+  };
+
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
     },
-    async setJSON(key, obj) {
-      const file = path.join(baseDir, key)
-      fs.writeFileSync(file, JSON.stringify(obj, null, 2), 'utf8')
-    }
+    body: JSON.stringify(payload),
+  });
+
+  if (!r.ok) {
+    const body = await r.text().catch(() => "");
+    return { sent: false, status: r.status, body };
   }
-}
-// =================================================
-
-export async function handler(event) {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: { ...cors(), 'content-type': 'application/json; charset=utf-8' }, body: '' }
-  }
-  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' })
-
-  const auth = event.headers.authorization || ''
-  if (!auth.startsWith('Bearer ') || auth.slice(7) !== TOKEN) return json(401, { error: 'Unauthorized' })
-
-  let payload
-  try { payload = JSON.parse(event.body || '{}') } catch { return json(400, { error: 'Invalid JSON' }) }
-
-  const { orderId, contact = {}, invoice = {}, config, zipBase64 } = payload
-  if (!orderId || !config || !zipBase64) return json(400, { error: 'Missing orderId/config/zipBase64' })
-
-  // 1) zapis plików (Blobs lub lokalnie)
-  const store = getOrdersStore()
-  const zipKey  = `site-${orderId}.zip`
-  const jsonKey = `order-${orderId}.json`
-
-  const zipBuf = Buffer.from(zipBase64, 'base64')
-  await store.set(zipKey, zipBuf)
-  await store.setJSON(jsonKey, { orderId, config })
-
-  // 2) linki do pobrania
-  const base   = process.env.PUBLIC_BASE_URL || 'http://localhost:8888'
-  const tokenQ = `token=${encodeURIComponent(TOKEN)}`
-  const zipUrl  = `${base}/.netlify/functions/download?key=${encodeURIComponent(zipKey)}&${tokenQ}`
-  const jsonUrl = `${base}/.netlify/functions/download?key=${encodeURIComponent(jsonKey)}&${tokenQ}`
-
-  // 3) e-mail (bez załączników)
-  const toList = parseRecipients(process.env.ORDER_EMAIL_TO)
-  if (!toList.length) return json(400, { error: 'ORDER_EMAIL_TO is empty or invalid' })
-  const to   = toList.length === 1 ? toList[0] : toList
-  const from = process.env.ORDER_EMAIL_FROM || 'onboarding@resend.dev'
-  const html = renderHtml(orderId, contact, invoice, zipUrl, jsonUrl)
-
-  try {
-    const result = await resend.emails.send({ from, to, subject: `Nowe zamówienie #${orderId}`, html })
-    if (result?.error) {
-      const status = Number(result.error.statusCode) || 502
-      return json(status, { error: `Resend: ${result.error.name} – ${result.error.message}` })
-    }
-    return json(200, { ok: true, id: result?.data?.id || null, zipUrl, jsonUrl })
-  } catch (err) {
-    const msg = err?.response?.data || err?.message || String(err)
-    console.error('MAIL ERROR', msg)
-    return json(500, { error: 'Email send failed' })
-  }
+  return { sent: true };
 }
 
-function parseRecipients(value) {
-  if (!value) return []
-  if (Array.isArray(value)) return value.filter(Boolean)
-  return String(value).split(/[,;]+/).map(s => s.trim()).filter(Boolean)
-}
-function cors() {
-  return {
-    'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-    'Access-Control-Allow-Headers': 'authorization,content-type',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS'
-  }
-}
-function json(status, body) {
-  return {
-    statusCode: status,
-    headers: { ...cors(), 'content-type': 'application/json; charset=utf-8' },
-    body: JSON.stringify(body)
-  }
-}
-function renderHtml(orderId, contact, invoice, zipUrl, jsonUrl) {
-  const row = (o) =>
-    Object.entries(o || {})
-      .map(([k, v]) => `<tr><td style="padding:2px 8px">${escapeHtml(k)}</td><td style="padding:2px 8px"><b>${escapeHtml(v)}</b></td></tr>`)
-      .join('')
-  return `
-  <div style="font-family:system-ui,Segoe UI,Arial">
-    <h2>Nowe zamówienie #${escapeHtml(orderId)}</h2>
-    <h3>Dane kontaktowe</h3>
-    <table>${row(contact)}</table>
-    <h3>Dane do faktury</h3>
-    <table>${row(invoice)}</table>
-    <p><b>Pobierz pliki:</b></p>
-    <ul>
-      <li><a href="${zipUrl}" target="_blank" rel="noopener">site-${escapeHtml(orderId)}.zip</a></li>
-      <li><a href="${jsonUrl}" target="_blank" rel="noopener">order-${escapeHtml(orderId)}.json</a></li>
-    </ul>
-    <p style="color:#64748b;font-size:13px">Linki są zabezpieczone tokenem i wygodne do pobrania.</p>
-  </div>`
-}
 function escapeHtml(s) {
-  return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
+
+/**
+ * Handler
+ */
+export const handler = async (event) => {
+  // CORS preflight
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: buildCorsHeaders(ALLOWED_ORIGIN),
+      body: "",
+    };
+  }
+
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
+
+  // Origin/Referer gate
+  const origin = event.headers.origin || "";
+  const referer = event.headers.referer || "";
+  const sameOrigin =
+    (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) ||
+    (ALLOWED_ORIGIN && referer && referer.startsWith(ALLOWED_ORIGIN));
+
+  if (!sameOrigin) {
+    return { statusCode: 403, body: "Forbidden: bad origin" };
+  }
+
+  // Rate limit
+  const ip =
+    event.headers["x-nf-client-connection-ip"] ||
+    event.headers["x-forwarded-for"] ||
+    event.headers["client-ip"] ||
+    "unknown";
+
+  if (!hit(ip)) {
+    return { statusCode: 429, headers: buildCorsHeaders(ALLOWED_ORIGIN), body: "Too Many Requests" };
+  }
+
+  // Parse JSON payload
+  let data;
+  try {
+    data = JSON.parse(event.body || "{}");
+  } catch {
+    return { statusCode: 400, headers: buildCorsHeaders(ALLOWED_ORIGIN), body: "Invalid JSON" };
+  }
+
+  // Oczekiwane pola (dowolne – nie walidujemy twardo, ale możesz dodać Zod/Yup)
+  const orderId = safeId(data.orderId || data.invoiceNumber || "");
+  const ts = nowStamp();
+
+  // Zapis do pliku: meta + oryginalny payload (+ opcjonalnie ZIP base64)
+  try {
+    // Katalog docelowy: względny do katalogu funkcji
+    const baseDir = path.resolve(process.cwd(), ORDER_STORAGE_PATH);
+    ensureDirSync(baseDir);
+
+    const record = {
+      _meta: {
+        savedAt: new Date().toISOString(),
+        ip,
+        orderId,
+        file: null,
+        zipFile: null,
+      },
+      payload: data,
+    };
+
+    // Jeśli klient przesłał ZIP jako base64 w polu data.zipBase64
+    if (data.zipBase64) {
+      const zipBuf = Buffer.from(data.zipBase64, "base64");
+      const zipName = `${ts}__${orderId}__bundle.zip`;
+      const zipPath = path.join(baseDir, zipName);
+      fs.writeFileSync(zipPath, zipBuf);
+      record._meta.zipFile = zipName;
+    }
+
+    // JSON z pełnym rekordem
+    const fname = `${ts}__${orderId || crypto.randomUUID()}.json`;
+    const fpath = path.join(baseDir, fname);
+    fs.writeFileSync(fpath, JSON.stringify(record, null, 2), "utf8");
+    record._meta.file = fname;
+
+    // Opcjonalny e-mail
+    let emailInfo = { sent: false };
+    try {
+      const subject = `New order: ${orderId}`;
+      const text = `Order received at ${record._meta.savedAt}\n\n${JSON.stringify(data, null, 2)}`;
+      emailInfo = await maybeSendEmail({ subject, text });
+    } catch (e) {
+      // nie blokuj odpowiedzi jeśli e-mail padnie
+      emailInfo = { sent: false, reason: "email-error", error: String(e?.message || e) };
+    }
+
+    return {
+      statusCode: 200,
+      headers: buildCorsHeaders(ALLOWED_ORIGIN),
+      body: JSON.stringify({
+        ok: true,
+        saved: true,
+        file: record._meta.file,
+        zipFile: record._meta.zipFile,
+        email: emailInfo,
+      }),
+    };
+  } catch (e) {
+    console.error("send-order error:", e);
+    return {
+      statusCode: 500,
+      headers: buildCorsHeaders(ALLOWED_ORIGIN),
+      body: JSON.stringify({ ok: false, error: "server-error" }),
+    };
+  }
+};
