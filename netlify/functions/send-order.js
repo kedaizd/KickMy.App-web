@@ -10,7 +10,7 @@ import crypto from "crypto";
  * ──────────────────────────────────────────────────────────────────────────────
  * ENV (ustaw w Netlify → Site settings → Build & deploy → Environment):
  * - ALLOWED_ORIGIN         np. https://twojadomena.pl  (dla dev: http://localhost:8888)
- * - ORDER_STORAGE_PATH     np. data/orders            (opcjonalne; wzgl. do katalogu funkcji)
+ * - ORDER_STORAGE_PATH     np. orders (podkatalog w /tmp) — opcjonalne
  * - RESEND_API_KEY         klucz do Resend (opcjonalne wysyłanie e-maila)
  * - ORDER_EMAIL_FROM       np. orders@twojadomena.pl  (opcjonalne)
  * - ORDER_EMAIL_TO         np. biuro@twojadomena.pl   (opcjonalne)
@@ -19,20 +19,27 @@ import crypto from "crypto";
  */
 
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
-const ORDER_STORAGE_PATH = process.env.ORDER_STORAGE_PATH || "data/orders";
-
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const ORDER_EMAIL_FROM = process.env.ORDER_EMAIL_FROM || "";
 const ORDER_EMAIL_TO = process.env.ORDER_EMAIL_TO || "";
 
 /**
- * Prosty rate-limit w pamięci procesu: max 20 żądań / IP / minutę.
- * W Netlify Functions instancje mogą się przegrupowywać, więc to jest best-effort.
+ * Ścieżka zapisu — tylko /tmp jest zapisywalne w Netlify Functions.
+ * Jeśli ORDER_STORAGE_PATH jest ścieżką bezwzględną i zaczyna się od /tmp, użyj jej.
+ * W innym wypadku zapiszemy do /tmp/<ORDER_STORAGE_PATH || "orders">
  */
-const RATE = {
-  windowMs: 60 * 1000,
-  max: 20,
-};
+function resolveWritableDir() {
+  const p = process.env.ORDER_STORAGE_PATH || "orders";
+  if (path.isAbsolute(p) && p.startsWith("/tmp")) return p;
+  return path.join("/tmp", p);
+}
+const ORDER_DIR = resolveWritableDir();
+
+/**
+ * Prosty rate-limit w pamięci procesu: max 20 żądań / IP / minutę.
+ * (Best-effort; instancje funkcji mogą się zmieniać.)
+ */
+const RATE = { windowMs: 60 * 1000, max: 20 };
 global.__rl = global.__rl || new Map();
 
 function hit(ip) {
@@ -56,10 +63,7 @@ function ensureDirSync(dir) {
 }
 
 function safeId(id) {
-  if (typeof id !== "string" || !id.trim()) {
-    return crypto.randomUUID();
-  }
-  // Wytnij niebezpieczne znaki z ID do nazwy pliku
+  if (typeof id !== "string" || !id.trim()) return crypto.randomUUID();
   return id.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
 }
 
@@ -75,7 +79,9 @@ function nowStamp() {
  * Opcjonalny e-mail przez Resend
  */
 async function maybeSendEmail({ subject, text, html }) {
-  if (!RESEND_API_KEY || !ORDER_EMAIL_FROM || !ORDER_EMAIL_TO) return { sent: false, reason: "email-not-configured" };
+  if (!RESEND_API_KEY || !ORDER_EMAIL_FROM || !ORDER_EMAIL_TO) {
+    return { sent: false, reason: "email-not-configured" };
+  }
 
   const payload = {
     from: ORDER_EMAIL_FROM,
@@ -102,10 +108,7 @@ async function maybeSendEmail({ subject, text, html }) {
 }
 
 function escapeHtml(s) {
-  return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 /**
@@ -155,15 +158,12 @@ export const handler = async (event) => {
     return { statusCode: 400, headers: buildCorsHeaders(ALLOWED_ORIGIN), body: "Invalid JSON" };
   }
 
-  // Oczekiwane pola (dowolne – nie walidujemy twardo, ale możesz dodać Zod/Yup)
   const orderId = safeId(data.orderId || data.invoiceNumber || "");
   const ts = nowStamp();
 
   // Zapis do pliku: meta + oryginalny payload (+ opcjonalnie ZIP base64)
   try {
-    // Katalog docelowy: względny do katalogu funkcji
-    const baseDir = path.resolve(process.cwd(), ORDER_STORAGE_PATH);
-    ensureDirSync(baseDir);
+    ensureDirSync(ORDER_DIR);
 
     const record = {
       _meta: {
@@ -180,14 +180,14 @@ export const handler = async (event) => {
     if (data.zipBase64) {
       const zipBuf = Buffer.from(data.zipBase64, "base64");
       const zipName = `${ts}__${orderId}__bundle.zip`;
-      const zipPath = path.join(baseDir, zipName);
+      const zipPath = path.join(ORDER_DIR, zipName);
       fs.writeFileSync(zipPath, zipBuf);
       record._meta.zipFile = zipName;
     }
 
     // JSON z pełnym rekordem
     const fname = `${ts}__${orderId || crypto.randomUUID()}.json`;
-    const fpath = path.join(baseDir, fname);
+    const fpath = path.join(ORDER_DIR, fname);
     fs.writeFileSync(fpath, JSON.stringify(record, null, 2), "utf8");
     record._meta.file = fname;
 
