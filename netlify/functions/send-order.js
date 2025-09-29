@@ -5,29 +5,89 @@ import path from "path";
 import crypto from "crypto";
 
 /**
- * ──────────────────────────────────────────────────────────────────────────────
- * Konfiguracja
- * ──────────────────────────────────────────────────────────────────────────────
- * ENV (ustaw w Netlify → Site settings → Build & deploy → Environment):
- * - ALLOWED_ORIGIN         np. https://twojadomena.pl  (dla dev: http://localhost:8888)
- * - ORDER_STORAGE_PATH     np. orders (podkatalog w /tmp) — opcjonalne
- * - RESEND_API_KEY         klucz do Resend (opcjonalne wysyłanie e-maila)
- * - ORDER_EMAIL_FROM       np. orders@twojadomena.pl  (opcjonalne)
- * - ORDER_EMAIL_TO         np. biuro@twojadomena.pl   (opcjonalne)
+ * ENV (Netlify → Site settings → Build & deploy → Environment):
+ * - ALLOWED_ORIGINS       lista po przecinku, np.:
+ *     https://kickmy.app,https://www.kickmy.app,http://localhost:5173
+ *   (dla zgodności: jeśli nie ustawisz ALLOWED_ORIGINS, użyjemy ALLOWED_ORIGIN)
  *
- * Uwaga: ŻADNYCH sekretów w VITE_*! Frontend nie przesyła tokenów.
+ * - ORDER_STORAGE_PATH    podkatalog w /tmp (opcjonalnie; domyślnie "orders")
+ * - RESEND_API_KEY        (opcjonalnie)
+ * - ORDER_EMAIL_FROM      (opcjonalnie)
+ * - ORDER_EMAIL_TO        (opcjonalnie)
+ *
+ * Uwaga: frontend NIE przesyła sekretów.
  */
 
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
-const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const RESEND_API_KEY   = process.env.RESEND_API_KEY || "";
 const ORDER_EMAIL_FROM = process.env.ORDER_EMAIL_FROM || "";
-const ORDER_EMAIL_TO = process.env.ORDER_EMAIL_TO || "";
+const ORDER_EMAIL_TO   = process.env.ORDER_EMAIL_TO || "";
 
-/**
- * Ścieżka zapisu — tylko /tmp jest zapisywalne w Netlify Functions.
- * Jeśli ORDER_STORAGE_PATH jest ścieżką bezwzględną i zaczyna się od /tmp, użyj jej.
- * W innym wypadku zapiszemy do /tmp/<ORDER_STORAGE_PATH || "orders">
- */
+/** ───────── Wielu dozwolonych originów ───────── */
+function parseAllowedOrigins() {
+  const list =
+    (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+  // dedupe + normalizacja (bez trailing slash)
+  const norm = Array.from(new Set(list.map(stripSlash)));
+  return norm;
+}
+
+function stripSlash(u) {
+  return u.endsWith("/") ? u.slice(0, -1) : u;
+}
+
+function originFromUrlLike(u) {
+  try {
+    const url = new URL(u);
+    return stripSlash(url.origin);
+  } catch {
+    return "";
+  }
+}
+
+function matchesAllowed(origin, allowedList) {
+  if (!origin) return false;
+  // dokładne dopasowanie
+  if (allowedList.includes(origin)) return true;
+
+  // wsparcie dla wildcardów: *.domena.tld
+  // przykład: wpisz w env: *.netlify.app
+  for (const a of allowedList) {
+    if (a.startsWith("*.")) {
+      // a = *.netlify.app  -> hostSuffix = .netlify.app
+      const hostSuffix = a.slice(1); // ".netlify.app"
+      try {
+        const o = new URL(origin);
+        if (o.host.endsWith(hostSuffix)) return true;
+      } catch {
+        // origin mógł nie być pełnym URL, pomijamy
+      }
+    }
+  }
+  return false;
+}
+
+function pickCorsOrigin(origin, refererOrigin, allowedList, isDev) {
+  // dev fallback (np. przy netlify dev) – możesz wyłączyć, jeśli chcesz twardo trzymać whitelistę:
+  if (isDev) return origin || refererOrigin || "";
+
+  if (matchesAllowed(origin, allowedList)) return origin;
+  if (matchesAllowed(refererOrigin, allowedList)) return refererOrigin;
+  return ""; // brak CORS dla nieakceptowanych
+}
+
+function buildCorsHeaders(allowOrigin) {
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
+/** ───────── Ścieżka zapisu (tylko /tmp jest zapisywalne) ───────── */
 function resolveWritableDir() {
   const p = process.env.ORDER_STORAGE_PATH || "orders";
   if (path.isAbsolute(p) && p.startsWith("/tmp")) return p;
@@ -35,10 +95,7 @@ function resolveWritableDir() {
 }
 const ORDER_DIR = resolveWritableDir();
 
-/**
- * Prosty rate-limit w pamięci procesu: max 20 żądań / IP / minutę.
- * (Best-effort; instancje funkcji mogą się zmieniać.)
- */
+/** ───────── Prosty rate-limit (best-effort) ───────── */
 const RATE = { windowMs: 60 * 1000, max: 20 };
 global.__rl = global.__rl || new Map();
 
@@ -50,14 +107,7 @@ function hit(ip) {
   return arr.length <= RATE.max;
 }
 
-function buildCorsHeaders(origin) {
-  return {
-    "Access-Control-Allow-Origin": origin || "",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
-}
-
+/** ───────── Utilities ───────── */
 function ensureDirSync(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
@@ -75,9 +125,11 @@ function nowStamp() {
   )}-${pad(d.getUTCMinutes())}-${pad(d.getUTCSeconds())}Z`;
 }
 
-/**
- * Opcjonalny e-mail przez Resend
- */
+function escapeHtml(s) {
+  return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+/** ───────── Opcjonalny e-mail przez Resend ───────── */
 async function maybeSendEmail({ subject, text, html }) {
   if (!RESEND_API_KEY || !ORDER_EMAIL_FROM || !ORDER_EMAIL_TO) {
     return { sent: false, reason: "email-not-configured" };
@@ -107,36 +159,31 @@ async function maybeSendEmail({ subject, text, html }) {
   return { sent: true };
 }
 
-function escapeHtml(s) {
-  return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
-
-/**
- * Handler
- */
+/** ───────── Handler ───────── */
 export const handler = async (event) => {
+  const allowedList = parseAllowedOrigins();
+  const isDev = process.env.NODE_ENV === "development";
+
+  // origins z nagłówków
+  const originHdr  = stripSlash(event.headers.origin || "");
+  const refererHdr = event.headers.referer || "";
+  const refererOrigin = refererHdr ? originFromUrlLike(refererHdr) : "";
+
+  // wybierz, co wpuścić i co wstawić do CORS
+  const allowOrigin = pickCorsOrigin(originHdr, refererOrigin, allowedList, isDev);
+
   // CORS preflight
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 204,
-      headers: buildCorsHeaders(ALLOWED_ORIGIN),
-      body: "",
-    };
+    return { statusCode: 204, headers: buildCorsHeaders(allowOrigin), body: "" };
   }
 
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return { statusCode: 405, headers: buildCorsHeaders(allowOrigin), body: "Method Not Allowed" };
   }
 
-  // Origin/Referer gate
-  const origin = event.headers.origin || "";
-  const referer = event.headers.referer || "";
-  const sameOrigin =
-    (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) ||
-    (ALLOWED_ORIGIN && referer && referer.startsWith(ALLOWED_ORIGIN));
-
-  if (!sameOrigin) {
-    return { statusCode: 403, body: "Forbidden: bad origin" };
+  // Gate: jeśli allowOrigin pusty → 403
+  if (!allowOrigin) {
+    return { statusCode: 403, headers: buildCorsHeaders(""), body: "Forbidden: bad origin" };
   }
 
   // Rate limit
@@ -147,21 +194,21 @@ export const handler = async (event) => {
     "unknown";
 
   if (!hit(ip)) {
-    return { statusCode: 429, headers: buildCorsHeaders(ALLOWED_ORIGIN), body: "Too Many Requests" };
+    return { statusCode: 429, headers: buildCorsHeaders(allowOrigin), body: "Too Many Requests" };
   }
 
-  // Parse JSON payload
+  // Body
   let data;
   try {
     data = JSON.parse(event.body || "{}");
   } catch {
-    return { statusCode: 400, headers: buildCorsHeaders(ALLOWED_ORIGIN), body: "Invalid JSON" };
+    return { statusCode: 400, headers: buildCorsHeaders(allowOrigin), body: "Invalid JSON" };
   }
 
   const orderId = safeId(data.orderId || data.invoiceNumber || "");
   const ts = nowStamp();
 
-  // Zapis do pliku: meta + oryginalny payload (+ opcjonalnie ZIP base64)
+  // Zapis (JSON + ew. ZIP base64) w /tmp
   try {
     ensureDirSync(ORDER_DIR);
 
@@ -176,7 +223,6 @@ export const handler = async (event) => {
       payload: data,
     };
 
-    // Jeśli klient przesłał ZIP jako base64 w polu data.zipBase64
     if (data.zipBase64) {
       const zipBuf = Buffer.from(data.zipBase64, "base64");
       const zipName = `${ts}__${orderId}__bundle.zip`;
@@ -185,26 +231,24 @@ export const handler = async (event) => {
       record._meta.zipFile = zipName;
     }
 
-    // JSON z pełnym rekordem
     const fname = `${ts}__${orderId || crypto.randomUUID()}.json`;
     const fpath = path.join(ORDER_DIR, fname);
     fs.writeFileSync(fpath, JSON.stringify(record, null, 2), "utf8");
     record._meta.file = fname;
 
-    // Opcjonalny e-mail
+    // E-mail (opcjonalnie)
     let emailInfo = { sent: false };
     try {
       const subject = `New order: ${orderId}`;
       const text = `Order received at ${record._meta.savedAt}\n\n${JSON.stringify(data, null, 2)}`;
       emailInfo = await maybeSendEmail({ subject, text });
     } catch (e) {
-      // nie blokuj odpowiedzi jeśli e-mail padnie
       emailInfo = { sent: false, reason: "email-error", error: String(e?.message || e) };
     }
 
     return {
       statusCode: 200,
-      headers: buildCorsHeaders(ALLOWED_ORIGIN),
+      headers: buildCorsHeaders(allowOrigin),
       body: JSON.stringify({
         ok: true,
         saved: true,
@@ -217,7 +261,7 @@ export const handler = async (event) => {
     console.error("send-order error:", e);
     return {
       statusCode: 500,
-      headers: buildCorsHeaders(ALLOWED_ORIGIN),
+      headers: buildCorsHeaders(allowOrigin),
       body: JSON.stringify({ ok: false, error: "server-error" }),
     };
   }
