@@ -11,7 +11,7 @@ const btnStyle = { fontFamily, fontSize: 15, fontWeight: 500, borderRadius: 8, p
 const tableStyle = { fontFamily, fontSize: 15, width: '100%', borderCollapse: 'collapse', marginBottom: 8 };
 const thtd = { padding: '6px 8px', textAlign: 'left', borderBottom: '1px solid #e5e7eb' };
 
-export default function RightPanel({ cfg, priceData, update, showRight, setShowRight }){
+export default function RightPanel({ cfg, priceData, update, showRight, setShowRight }) {
   const t = getTranslation(cfg);
   const [isSending, setIsSending] = useState(false);
 
@@ -31,8 +31,9 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
       const contact = {
         name:  cfg.invoice?.name || '',
         email: cfg.invoice?.deliveryEmail || ''
-        // phone: (jeśli dodasz pole telefonu w UI)
+        // phone: (dodasz kiedy będziesz mieć w UI)
       };
+
       const invoice = {
         name:    cfg.invoice?.name || '',
         nip:     cfg.invoice?.nip || '',
@@ -49,29 +50,43 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
       // 4) Unikalne ID zamówienia
       const orderId = `ORD-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
 
-      // 5) Wyślij do Netlify Function
-      const res = await fetch('/.netlify/functions/send-order', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(payload)
-});
+      // 5) Zbuduj payload (to było wcześniej pominięte)
+      const payload = {
+        orderId,
+        contact,
+        invoice,
+        package: cfg.package || 'pro',
+        packagePrice,
+        priceBreakdown: priceData || null, // jeśli potrzebujesz szczegółów
+        config,             // pełny config (będzie zapisany w JSON po stronie funkcji)
+        zipBase64           // paczka ZIP dołączona jako base64
+      };
 
-      const data = await res.json().catch(() => ({}));
+      // 6) Wyślij do Netlify Function
+      const res = await fetch('/.netlify/functions/send-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const resp = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data?.error || `HTTP ${res.status}`);
+        const reason = (resp && (resp.error || resp.message)) ? `: ${resp.error || resp.message}` : '';
+        throw new Error(`HTTP ${res.status}${reason}`);
       }
 
+      // 7) Potwierdzenie dla użytkownika
       alert(t.rightPanel?.orderSent || 'Zamówienie zostało wysłane! Sprawdź skrzynkę.');
 
-      // (opcjonalnie) Pobierz ZIP lokalnie dla użytkownika
+      // (opcjonalnie) Lokalnie pobierz ZIP dla użytkownika
       exportZip(cfg);
+      // (opcjonalnie) albo zapis samych ustawień:
+      // exportConfigJson(cfg);
 
     } catch (err) {
       console.error('Order submission failed', err);
-      const msgId = data?.id ? `\nID: ${data.id}` : '';
-        alert(`${t.rightPanel?.orderSent || 'Zamówienie zostało wysłane!'}${msgId}`);
+      // Nie używamy niezdefiniowanego "data"; pokaż czytelną informację:
+      alert(t.rightPanel?.orderError || 'Nie udało się wysłać zamówienia. Spróbuj ponownie za chwilę.');
     } finally {
       setIsSending(false);
     }
@@ -82,6 +97,7 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
       className="btn btn-primary hide-summary-btn"
       style={{ ...btnStyle, marginBottom: 12, background: '#ff0000', color: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
       onClick={() => setShowRight(false)}
+      type="button"
     >
       {t.rightPanel?.hideSummary || 'Ukryj panel Podsumowanie'}
     </button>
@@ -146,6 +162,7 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
         style={{ ...btnStyle, background: isSending ? '#6b7280' : '#2563eb', color: '#fff', marginTop: 8, opacity: isSending ? 0.8 : 1 }}
         onClick={handlePlaceOrder}
         disabled={isSending}
+        type="button"
       >
         {isSending ? (t.rightPanel?.ordering || 'Wysyłanie…') : (t.rightPanel?.orderBtn || 'Składam zamówienie')}
       </button>
