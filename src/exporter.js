@@ -220,24 +220,24 @@ const generateVideoHtml = (cfg) => {
           if (!videoUrl) return '';
           // YouTube URL detection
           let ytId = '';
-          let ytMatch = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)\|youtu\.be\/)([\w-]{11})/);
+          let ytMatch = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
           if (!ytMatch) ytMatch = videoUrl.match(/[?&]v=([\w-]{11})/);
           if (ytMatch && ytMatch[1]) {
             ytId = ytMatch[1];
             const thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-            return `<div class=\"video-item\" style=\"position:relative;aspect-ratio:16/9;overflow:hidden;cursor:pointer;\"><a href=\"https://www.youtube.com/watch?v=${ytId}\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"${thumb}\" alt=\"Miniaturka wideo\" style=\"width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;\" /><span style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border-radius:50%;padding:18px;display:flex;align-items:center;justify-content:center;\"><svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"#fff\"><polygon points=\"16,12 30,20 16,28\"/></svg></span></a></div>`;
+            return `<div class="video-item" style="position:relative;aspect-ratio:16/9;overflow:hidden;cursor:pointer;"><a href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener noreferrer"><img src="${thumb}" alt="Miniaturka wideo" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;" /><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border-radius:50%;padding:18px;display:flex;align-items:center;justify-content:center;"><svg width="40" height="40" viewBox="0 0 40 40" fill="#fff"><polygon points="16,12 30,20 16,28"/></svg></span></a></div>`;
           }
-          // Direct video file: show as thumbnail (poster) if possible, else fallback
-          return `<div class=\"video-item\"><video controls style=\"width:100%;height:100%;border-radius:12px;object-fit:cover;\"><source src=\"${videoUrl}\" /></video></div>`;
+          // Direct video file
+          return `<div class="video-item"><video controls style="width:100%;height:100%;border-radius:12px;object-fit:cover;"><source src="${videoUrl}" /></video></div>`;
         }).join('')}
       </div>
     </section>
   `;
 };
-// (Contact generator already defined above, do not redeclare)
-import JSZip from 'jszip'
-import pl from './pl.json'
-import en from './en.json'
+
+import JSZip from 'jszip';
+import pl from './pl.json';
+import en from './en.json';
 
 // Helper to get translation object
 function getTranslation(cfg) {
@@ -250,7 +250,7 @@ const generateHeroHtml = (cfg) => {
   const t = getTranslation(cfg);
   const brand = cfg.brand || {};
   const hero = cfg.hero || {};
-  // Background logic as in CenterPreview.jsx
+  // Background logic
   let heroStyle = '';
   const bgType = hero.bgType || 'gradient';
   if (bgType === 'image' && hero.background) {
@@ -276,7 +276,7 @@ const generateHeroHtml = (cfg) => {
   const logoSize = brand.logoSize ?? 1;
   const logo = brand.logo ? `<img class="hero-logo" src="${brand.logo}" alt="Logo" style="max-height:${80 * logoSize}px;max-width:${120 * logoSize}px;margin-left:24px;object-fit:contain;background:#fff;border-radius:8px;box-shadow:0 2px 8px #0001;transition:max-width 0.2s,max-height 0.2s;" />` : '';
 
-  // Flex layout as in CenterPreview.jsx
+  // Layout
   return `
     <section class="hero" style="display:flex;align-items:center;justify-content:space-between;min-height:90px;${heroStyle}">
       <div style="flex:1;min-width:0;">
@@ -305,10 +305,10 @@ const generatePromoHtml = (cfg) => {
       if (!(promo.discount || promo.text || promo.endDate || promo.terms)) return '';
       return `
         <div class="promo-block" style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:16px;margin-bottom:18px;text-align:center;">
-          ${promo.discount ? `<div style=\"font-size:28px;font-weight:700;color:#b45309;margin-bottom:4px;\">${promo.discount}</div>` : ''}
-          ${promo.text ? `<div style=\"font-size:20px;font-weight:500;color:#92400e;margin-bottom:4px;\">${promo.text}</div>` : ''}
-          ${promo.endDate ? `<div style=\"font-size:14px;color:#92400e;margin-bottom:4px;\">${t.promo?.endDate || 'Promocja trwa do:'} <b>${promo.endDate}</b></div>` : ''}
-          ${promo.terms ? `<div style=\"font-size:13px;color:#92400e;margin-top:8px;background:#fff7ed;border-radius:4px;padding:8px;\">${promo.terms}</div>` : ''}
+          ${promo.discount ? `<div style="font-size:28px;font-weight:700;color:#b45309;margin-bottom:4px;">${promo.discount}</div>` : ''}
+          ${promo.text ? `<div style="font-size:20px;font-weight:500;color:#92400e;margin-bottom:4px;">${promo.text}</div>` : ''}
+          ${promo.endDate ? `<div style="font-size:14px;color:#92400e;margin-bottom:4px;">${t.promo?.endDate || 'Promocja trwa do:'} <b>${promo.endDate}</b></div>` : ''}
+          ${promo.terms ? `<div style="font-size:13px;color:#92400e;margin-top:8px;background:#fff7ed;border-radius:4px;padding:8px;">${promo.terms}</div>` : ''}
         </div>
       `;
     })
@@ -321,13 +321,12 @@ const generatePromoHtml = (cfg) => {
   `;
 };
 
-// Duplicate and misplaced code removed
-
+// --- CSS (naprawione domknięcie :root) ---
 const CSS_TEXT = `
 :root {
   --line: rgba(2,6,23,.08);
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-// End of file
+}
 * {box-sizing:border-box}
 body {
   margin:0;
@@ -560,17 +559,18 @@ form textarea {min-height:120px;}
   h3 {font-size: 1rem;}
   .cta, .btn, button {font-size: 14px; padding: 8px 8px;}
 }
-`
+`;
 
-export function exportZip(cfg, opts={}){
-  const zip = new JSZip()
-  const htmlFolder = zip.folder('export-html')
-  const distFolder = zip.folder('dist')
+// ============== WSPÓLNY BUILDER ZIP (NOWE) ==============
+export async function buildZipBlob(cfg) {
+  const zip = new JSZip();
+  const htmlFolder = zip.folder('export-html');
+  zip.folder('dist'); // przygotowane na assets, jeśli będziesz dopinać
 
-  const brand = cfg.brand || {}
-  const accent = brand.colors?.accent || '#f59e0b'
-  const start = (cfg.hero?.colors?.start) || (brand.colors?.brand) || '#0ea5e9'
-  const end = (cfg.hero?.colors?.end) || accent
+  const brand = cfg.brand || {};
+  const accent = brand.colors?.accent || '#f59e0b';
+  const start = (cfg.hero?.colors?.start) || (brand.colors?.brand) || '#0ea5e9';
+  const end = (cfg.hero?.colors?.end) || accent;
 
   const head = `<!doctype html>
 <html lang="pl">
@@ -583,11 +583,10 @@ export function exportZip(cfg, opts={}){
 </head>
 <body>
   <div class="container">
-`
+`;
 
-  // Section generators map
   const sectionGenerators = {
-  booking: generateBookingHtml,
+    booking: generateBookingHtml,
     hero: generateHeroHtml,
     usp: generateUspHtml,
     whyus: generateWhyUsHtml,
@@ -603,7 +602,7 @@ export function exportZip(cfg, opts={}){
         images = cfg.gallery.images;
       }
       if (!images.length) return '';
-  const size = cfg.gallery?.imageSize || 280;
+      const size = cfg.gallery?.imageSize || 280;
       return `
         <section class="section">
           <h3>${t.gallery?.header || 'Galeria'}</h3>
@@ -612,7 +611,7 @@ export function exportZip(cfg, opts={}){
               if (!img) return '';
               const url = typeof img === 'string' ? img : img.url;
               if (!url) return '';
-              return `<div class=\"gallery-img-wrap\" style=\"background:#f3f4f6;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px #0001;display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;\"><img src=\"${url}\" alt=\"Galeria\" style=\"width:100%;height:100%;object-fit:cover;display:block;border-radius:8px;border:1px solid #ccc;\" /></div>`;
+              return `<div class="gallery-img-wrap" style="background:#f3f4f6;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px #0001;display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;"><img src="${url}" alt="Galeria" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:8px;border:1px solid #ccc;" /></div>`;
             }).join('')}
           </div>
         </section>
@@ -657,20 +656,17 @@ export function exportZip(cfg, opts={}){
     },
     promo: generatePromoHtml,
     video: generateVideoHtml,
-  // vouchers section removed
-    // footer handled separately below
+    // footer generujemy osobno poniżej
   };
 
-  // Render all sections in user-defined order
   const sections = Array.isArray(cfg.sections) ? cfg.sections : ['hero', 'promo', 'pricing', 'contact'];
-  // Remove 'footer' from sections if present
   const filteredSections = Array.isArray(cfg.sections) ? cfg.sections.filter(s => s !== 'footer') : ['hero', 'promo', 'pricing', 'contact'];
+
   const body = filteredSections.map(s => {
     const gen = sectionGenerators[s];
     return gen ? gen(cfg) : '';
   }).join('\n');
-  // Generate footer only once
-  // Footer: use user-defined background and text color (match CenterPreview)
+
   const yearFooter = new Date().getFullYear();
   const footerBg = cfg.footer?.background || '#f8fafc';
   const footerColor = cfg.footer?.textColor || '#64748b';
@@ -687,9 +683,8 @@ export function exportZip(cfg, opts={}){
   </div>
 </body>
 </html>
-`
+`;
 
-  // Add accordion JS for FAQ
   const faqScript = `
     document.querySelectorAll('.faq-q').forEach(q => {
       q.addEventListener('click', function() {
@@ -701,23 +696,37 @@ export function exportZip(cfg, opts={}){
     });
   `;
   const scriptTag = `<script>window.addEventListener('DOMContentLoaded',function(){${faqScript}});</script>`;
+
   htmlFolder.file('index.html', head + body + footerHtml + scriptTag + foot)
   htmlFolder.file('styles.css', CSS_TEXT)
-  htmlFolder.file('simple.js', '// Your custom JavaScript here')
+// UWAGA: nie dołączamy żadnych .js do ZIP-a, żeby Gmail nie blokował wiadomości
 
-  // If returnBlob option is set, return the blob instead of downloading
-  if (opts.returnBlob) {
-    return zip.generateAsync({ type: 'blob' });
-  }
-  zip.generateAsync({ type: 'blob' }).then(function(content) {
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(content)
-    link.download = 'kickmy-export.zip'
-    link.click()
-  })
+  // Zwracamy gotowy Blob ZIP
+  return zip.generateAsync({ type: 'blob' });
 }
 
-// Export config JSON (with optional notes field)
+// ============== PUBLICZNE API EKSPORTU ==============
+
+// (ZMIANA) exportZip korzysta z buildera; zwraca Blob, gdy opts.returnBlob === true
+export async function exportZip(cfg, opts = {}) {
+  const zipBlob = await buildZipBlob(cfg);
+  if (opts.returnBlob) return zipBlob;
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(zipBlob);
+  link.download = 'kickmy-export.zip';
+  link.click();
+}
+
+// (NOWE) ZIP jako base64 – do wysyłki w JSON do funkcji Netlify
+export async function getExportZipBase64(cfg) {
+  const zipBlob = await buildZipBlob(cfg);
+  const arrayBuf = await zipBlob.arrayBuffer();
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuf)));
+  return base64;
+}
+
+// Export config JSON (with optional notes field) – bez zmian
 export function exportConfigJson(cfg, notes) {
   const data = { ...cfg };
   if (notes) data.notes = notes;

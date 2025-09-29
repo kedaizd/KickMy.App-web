@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react'
-import { exportZip, exportConfigJson } from '../exporter'
+import { exportZip, exportConfigJson, getExportZipBase64 } from '../exporter'
 import { getTranslation } from './i18n';
 
 const fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif';
@@ -12,26 +11,73 @@ const btnStyle = { fontFamily, fontSize: 15, fontWeight: 500, borderRadius: 8, p
 const tableStyle = { fontFamily, fontSize: 15, width: '100%', borderCollapse: 'collapse', marginBottom: 8 };
 const thtd = { padding: '6px 8px', textAlign: 'left', borderBottom: '1px solid #e5e7eb' };
 
-const blobToBase64 = (blob) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    const result = reader.result || '';
-    const base64 = typeof result === 'string' ? result.split(',').pop() : '';
-    resolve(base64 || '');
-  };
-  reader.onerror = reject;
-  reader.readAsDataURL(blob);
-});
 export default function RightPanel({ cfg, priceData, update, showRight, setShowRight }){
   const t = getTranslation(cfg);
-  // Determine package price
+  const [isSending, setIsSending] = useState(false);
+
+  // Cena pakietu
   const packagePrice = (!cfg.package || cfg.package === 'pro') ? 249 : 149;
 
   const handleExport = () => {
     exportZip(cfg);
   };
 
-  const [jsonNotes, setJsonNotes] = useState('');
+  // Główny handler "Składam zamówienie"
+  const handlePlaceOrder = async () => {
+    try {
+      setIsSending(true);
+
+      // 1) Zbierz dane kontaktowe i do faktury
+      const contact = {
+        name:  cfg.invoice?.name || '',
+        email: cfg.invoice?.deliveryEmail || ''
+        // phone: (jeśli dodasz pole telefonu w UI)
+      };
+      const invoice = {
+        name:    cfg.invoice?.name || '',
+        nip:     cfg.invoice?.nip || '',
+        address: cfg.invoice?.address || '',
+        email:   cfg.invoice?.deliveryEmail || ''
+      };
+
+      // 2) Aktualny config
+      const config = cfg;
+
+      // 3) ZIP jako base64 (do wysyłki przez funkcję)
+      const zipBase64 = await getExportZipBase64(config);
+
+      // 4) Unikalne ID zamówienia
+      const orderId = `ORD-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+
+      // 5) Wyślij do Netlify Function
+      const res = await fetch('/.netlify/functions/send-order', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'authorization': `Bearer ${import.meta.env.VITE_ORDER_WEBHOOK_TOKEN || ''}`
+        },
+        body: JSON.stringify({ orderId, contact, invoice, config, zipBase64 })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+
+      alert(t.rightPanel?.orderSent || 'Zamówienie zostało wysłane! Sprawdź skrzynkę.');
+
+      // (opcjonalnie) Pobierz ZIP lokalnie dla użytkownika
+      exportZip(cfg);
+
+    } catch (err) {
+      console.error('Order submission failed', err);
+      const msgId = data?.id ? `\nID: ${data.id}` : '';
+        alert(`${t.rightPanel?.orderSent || 'Zamówienie zostało wysłane!'}${msgId}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return <>
     <button
       className="btn btn-primary hide-summary-btn"
@@ -40,6 +86,7 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
     >
       {t.rightPanel?.hideSummary || 'Ukryj panel Podsumowanie'}
     </button>
+
     <h3 style={heading}>{t.rightPanel?.summary || 'Podsumowanie'}</h3>
     <div className="section" style={{ maxWidth: 420, width: '100%' }}>
       <table className="summary-table" style={tableStyle}>
@@ -53,67 +100,58 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
     </div>
 
     {/* --- ORDER SECTION --- */}
-  <h3 style={heading}>{t.rightPanel?.orderHeader || 'Przejdź do zamówienia'}</h3>
+    <h3 style={heading}>{t.rightPanel?.orderHeader || 'Przejdź do zamówienia'}</h3>
     <div className="section" style={{ maxWidth: 420, width: '100%' }}>
       <label style={labelText}>{t.rightPanel?.companyOrName || 'Nazwa firmy/Imię i nazwisko'}</label>
-      <input type="text" placeholder={t.rightPanel?.companyOrNamePlaceholder || 'Jan Kowalski'} style={inputStyle} value={cfg.invoice?.name || ''} onChange={e => update('invoice.name', e.target.value)} />
+      <input
+        type="text"
+        placeholder={t.rightPanel?.companyOrNamePlaceholder || 'Jan Kowalski'}
+        style={inputStyle}
+        value={cfg.invoice?.name || ''}
+        onChange={e => update('invoice.name', e.target.value)}
+      />
+
       <label style={labelText}>{t.rightPanel?.nip || 'NIP (opcjonalnie)'}</label>
-      <input type="text" placeholder={t.rightPanel?.nipPlaceholder || '123-456-78-90'} style={inputStyle} value={cfg.invoice?.nip || ''} onChange={e => update('invoice.nip', e.target.value)} />
+      <input
+        type="text"
+        placeholder={t.rightPanel?.nipPlaceholder || '123-456-78-90'}
+        style={inputStyle}
+        value={cfg.invoice?.nip || ''}
+        onChange={e => update('invoice.nip', e.target.value)}
+      />
+
       <label style={labelText}>{t.rightPanel?.address || 'Adres'}</label>
-      <input type="text" placeholder={t.rightPanel?.addressPlaceholder || 'ul. Sezamkowa 1, 00-001 Warszawa'} style={inputStyle} value={cfg.invoice?.address || ''} onChange={e => update('invoice.address', e.target.value)} />
+      <input
+        type="text"
+        placeholder={t.rightPanel?.addressPlaceholder || 'ul. Sezamkowa 1, 00-001 Warszawa'}
+        style={inputStyle}
+        value={cfg.invoice?.address || ''}
+        onChange={e => update('invoice.address', e.target.value)}
+      />
+
       <label style={labelText}>{t.rightPanel?.deliveryEmail || 'Adres e-mail do wysyłki paczki'}</label>
-      <input type="email" placeholder={t.rightPanel?.deliveryEmailPlaceholder || 'twoj@email.pl'} style={inputStyle} value={cfg.invoice?.deliveryEmail || ''} onChange={e => update('invoice.deliveryEmail', e.target.value)} />
+      <input
+        type="email"
+        placeholder={t.rightPanel?.deliveryEmailPlaceholder || 'twoj@email.pl'}
+        style={inputStyle}
+        value={cfg.invoice?.deliveryEmail || ''}
+        onChange={e => update('invoice.deliveryEmail', e.target.value)}
+      />
+
       <div className="small" style={{...baseText, fontSize:14, color:'#444', marginTop: 8, marginBottom: 8}}>
         {t.rightPanel?.orderHint || 'Po zaksięgowaniu wpłaty na rachunku bankowym, w ciągu 48h otrzymasz na podany adres e-mail gotową paczkę do wrzucenia na Netlify wraz z instrukcją jak to zrobić.'}
       </div>
+
       <button
         className="btn btn-primary"
-        style={{ ...btnStyle, background: '#2563eb', color: '#fff', marginTop: 8 }}
-        onClick={async () => {
-          try {
-            const zipBlob = await exportZip(cfg, { returnBlob: true, includeJson: true });
-            const zipBase64 = await blobToBase64(zipBlob);
-            const payload = {
-              cfg,
-              zip: zipBase64,
-              invoice: {
-                name: cfg.invoice?.name || '',
-                nip: cfg.invoice?.nip || '',
-                address: cfg.invoice?.address || '',
-                deliveryEmail: cfg.invoice?.deliveryEmail || ''
-              },
-              notes: jsonNotes || ''
-            };
-            const response = await fetch('/.netlify/functions/send-order', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            if (!response.ok) {
-              throw new Error('Request failed: ' + response.status);
-            }
-            alert(t.rightPanel?.orderSent || 'Zamowienie zostalo wyslane! Skontaktujemy sie z Toba wkrotce.');
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(zipBlob);
-            link.download = 'kickmy-export.zip';
-            link.click();
-          } catch (err) {
-            console.error('Order submission failed', err);
-            alert(t.rightPanel?.orderError || 'Nie udalo sie wyslac zamowienia. Sprobuj ponownie lub skontaktuj sie bezposrednio.');
-          }
-        }}
+        style={{ ...btnStyle, background: isSending ? '#6b7280' : '#2563eb', color: '#fff', marginTop: 8, opacity: isSending ? 0.8 : 1 }}
+        onClick={handlePlaceOrder}
+        disabled={isSending}
       >
-        {t.rightPanel?.orderBtn || 'Skladam zamowienie'}
+        {isSending ? (t.rightPanel?.ordering || 'Wysyłanie…') : (t.rightPanel?.orderBtn || 'Składam zamówienie')}
       </button>
     </div>
 
-    {/* JSON konfiguracyjny zostanie automatycznie dołączony do paczki ZIP przy składaniu zamówienia. */}
-    {/* Opublikuj stronę section removed as requested */}
+    {/* JSON konfiguracyjny zostanie dołączony do e-maila jako osobny załącznik `order-<id>.json`. */}
   </>
 }
-
-
-
-
-
-
