@@ -15,6 +15,26 @@ const selectStyle = { fontFamily: FONT_FAMILY, fontSize: 15, fontWeight: 400, fo
 const tableCellStyle = { fontFamily: FONT_FAMILY, fontSize: 15, fontWeight: 400, fontStyle: 'normal' };
 const buttonStyle = { fontFamily: FONT_FAMILY, fontSize: 15, fontWeight: 500, fontStyle: 'normal', borderRadius: 8, border: '1px solid #e5e7eb', padding: '8px 16px', cursor: 'pointer', background: '#fff' };
 
+const SECTION_LABELS = Object.freeze({
+  hero: 'Hero',
+  usp: 'Unikalna Cecha Oferty',
+  offer: 'Oferta',
+  gallery: 'Galeria',
+  pricing: 'Cennik',
+  faq: 'FAQ',
+  testimonials: 'Opinie',
+  booking: 'Rezerwacje',
+  contact: 'Kontakt',
+  map: 'Mapa',
+  social: 'Social media',
+  newsletter: 'Newsletter',
+  promo: 'Promocje',
+  video: 'Wideo',
+  footer: 'Stopka'
+});
+
+const getSectionLabel = (key) => SECTION_LABELS[key] || key;
+
 function LeftPanel({ cfg, update }) {
   const t = getTranslation(cfg);
   const [activeSection, setActiveSection] = useState('');
@@ -624,7 +644,7 @@ function LeftPanel({ cfg, update }) {
                 onClick={() => setActiveSection(s)}
               >
                 <span className="draghandle" style={{ fontSize: 18, marginRight: 8 }}>{(isHero || isFooter) ? '•' : '≡'}</span>
-                <b style={{ minWidth: 120, textDecoration: activeSection === s ? 'underline' : 'none', color: activeSection === s ? '#0ea5e9' : undefined }}>{s}</b>
+                <b style={{ minWidth: 120, textDecoration: activeSection === s ? 'underline' : 'none', color: activeSection === s ? '#0ea5e9' : undefined }}>{getSectionLabel(s)}</b>
                 {!(isHero || isFooter) && (
                   <button
                     className="btn"
@@ -665,7 +685,7 @@ function LeftPanel({ cfg, update }) {
                 update('sections', newSections);
                 setRemovedSections(prev => prev.filter(x => x !== s));
               }}
-            >{s}</button>
+            >{getSectionLabel(s)}</button>
           ))}
         </div>
       </div>
@@ -740,7 +760,7 @@ function LeftPanel({ cfg, update }) {
             }}
             onClick={() => setActiveSection(s)}
           >
-            {s}
+            {getSectionLabel(s)}
           </button>
         ))}
       </div>
@@ -756,7 +776,7 @@ function LeftPanel({ cfg, update }) {
             {s === 'usp' && (
               <>
                 <hr />
-                <label>USP</label>
+                <label>Unikalna Cecha Oferty</label>
                 <input
                   type="text"
                   placeholder="Tytuł sekcji USP (np. Dlaczego my)"
@@ -921,14 +941,14 @@ function LeftPanel({ cfg, update }) {
                 <hr />
                 <label>Galeria zdjęć</label>
                 <div style={{ marginBottom: 12 }}>
-                  <label htmlFor="gallery-image-size" style={{ display: 'block', marginBottom: 4 }}>Rozmiar obrazów w galerii: <b>{cfg.gallery?.imageSize || 120}px</b></label>
+                  <label htmlFor="gallery-image-size" style={{ display: 'block', marginBottom: 4 }}>Rozmiar obrazów w galerii: <b>{cfg.gallery?.imageSize || 280}px</b></label>
                   <input
                     id="gallery-image-size"
                     type="range"
                     min={40}
                     max={400}
                     step={4}
-                    value={cfg.gallery?.imageSize || 120}
+                    value={cfg.gallery?.imageSize || 280}
                     onChange={e => {
                       update('gallery.imageSize', parseInt(e.target.value, 10));
                       setTimeout(() => {

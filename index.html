@@ -8,9 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+      <!-- [DODAJ] Favicons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
+    <!-- [DODAJ] Ukryty formularz dla Netlify Forms (żeby wykryło w czasie builda) -->
+<form name="contact" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name" />
+  <input type="email" name="email" />
+  <textarea name="message"></textarea>
+</form>
   </body>
 </html>

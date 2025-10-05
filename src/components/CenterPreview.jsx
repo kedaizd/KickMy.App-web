@@ -237,7 +237,7 @@ export default function CenterPreview({ cfg, update, showRight, setShowRight }) 
                   <div className="usp-grid">
                     {(cfg.usp?.items || []).map((u, i) => (
                       <div key={i} className="usp-item" style={{ margin: 0 }}>
-                        {u.icon || '✓'} {u.text}
+                        {u.icon || '✄'} {u.text}
                       </div>
                     ))}
                   </div>
@@ -313,7 +313,7 @@ export default function CenterPreview({ cfg, update, showRight, setShowRight }) 
                           rel="noopener noreferrer"
                           style={{ display: 'inline-block', color: '#0077b5', fontWeight: 500, marginBottom: 8 }}
                         >
-                          📄 {t.pricing?.pdf || 'Zobacz cennik PDF'} ({cfg.pricing.attachment.name})
+                          🄄 {t.pricing?.pdf || 'Zobacz cennik PDF'} ({cfg.pricing.attachment.name})
                         </a>
                       ) : null}
                     </div>
@@ -359,9 +359,9 @@ export default function CenterPreview({ cfg, update, showRight, setShowRight }) 
                   <div className="testimonials-grid">
                     {(cfg.testimonials?.items || []).map((t, i) => (
                       <blockquote key={i} className="testimonial-card">
-                        <div>„{t.text}”</div>
-                        <div className="small">— {t.author || t.testimonials?.author || 'Klient'}</div>
-                      </blockquote>
+                      <div style={{ fontWeight: 600 }}>„{t.text}”</div>
+                      <div className="small">- {t.author || t.testimonials?.author || 'Klient'}</div>
+                    </blockquote>
                     ))}
                   </div>
                   {cfg.reviews?.link && (
@@ -379,17 +379,17 @@ export default function CenterPreview({ cfg, update, showRight, setShowRight }) 
                   <ul className="list">
                     {cfg.brand?.phone && (
                       <li>
-                        <span>☎️</span> <a href={`tel:${cfg.brand.phone}`}>{t.contact?.phone || 'Telefon'}: {cfg.brand.phone}</a>
+                        <span>☎️</span> <a href={`tel:${cfg.brand.phone}`} style={{ color: 'var(--accent)', textDecoration: 'underline', fontWeight: 500 }}>{t.contact?.phone || 'Telefon'}: {cfg.brand.phone}</a>
                       </li>
                     )}
                     {cfg.brand?.email && (
                       <li>
-                        <span>✉️</span> <a href={`mailto:${cfg.brand.email}`}>{t.contact?.email || 'E-mail'}: {cfg.brand.email}</a>
+                        <span>✉️</span> <a href={`mailto:${cfg.brand.email}`} style={{ color: 'var(--accent)', textDecoration: 'underline', fontWeight: 500 }}>{t.contact?.email || 'E-mail'}: {cfg.brand.email}</a>
                       </li>
                     )}
                     {cfg.brand?.address && cfg.brand?.city && (
                       <li>
-                        <span>📍</span> {t.contact?.address || 'Adres'}: {cfg.brand.address}, {t.contact?.city || 'Miasto'}: {cfg.brand.city}
+                        <span>🄍</span> {t.contact?.address || 'Adres'}: {cfg.brand.address}, {t.contact?.city || 'Miasto'}: {cfg.brand.city}
                       </li>
                     )}
                   </ul>
@@ -519,7 +519,7 @@ export default function CenterPreview({ cfg, update, showRight, setShowRight }) 
                     </div>
                   ) : cfg.newsletter?.email ? (
                     <form className="newsletter-form" style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400, margin: '0 auto' }} onSubmit={e => { e.preventDefault(); window.open(`mailto:${cfg.newsletter.email}`); }}>
-                      <input type="email" required placeholder={t.newsletter?.placeholder || 'Twój e-mail'} style={{ padding: 10, borderRadius: 6, border: '1px solid #ccc' }} />
+                      <input type="email" required placeholder={t.newsletter?.placeholder || 'Twój email'} style={{ padding: 10, borderRadius: 6, border: '1px solid #ccc' }} />
                       <button type="submit" className="cta cta-primary" style={{ padding: 10, borderRadius: 6, background: cfg.buttonColor || (cfg.hero?.colors?.buttonPrimary || 'var(--accent)'), color: cfg.buttonTextColor || (cfg.hero?.colors?.buttonPrimaryText || '#fff'), border: 'none', fontWeight: 400, fontSize: 18, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif', fontStyle: 'normal' }}>{t.newsletter?.cta || 'Zapisz się'}</button>
                     </form>
                   ) : null}

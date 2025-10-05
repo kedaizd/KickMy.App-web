@@ -108,7 +108,7 @@ export const PRESETS = {
   },
   "testowy": {
     brand: {
-      title: "Testowy Consulting",
+      title: "Testowy",
       desc: "Profesjonalne doradztwo biznesowe i szkolenia dla firm. Skuteczność, doświadczenie, zaufanie.",
       phone: "+48 600 700 800",
       email: "kontakt@testowy-consulting.pl",
@@ -206,7 +206,7 @@ export const PRESETS = {
 
   "firma-remontowa": {
     "brand": {
-      "title": "RemontPro — Wykończenia i remonty",
+      "title": "Wykończenia i remonty",
       "desc": "Mieszkania, łazienki, kuchnie. Darmowa wycena w 24h.",
       "phone": "+48 511 222 333",
       "email": "biuro@remontpro.pl",
@@ -256,7 +256,7 @@ export const PRESETS = {
 
   "salon-fryzjerski": {
     "brand": {
-      "title": "Salon Fryzjerski Elegance",
+      "title": "Salon Fryzjerski",
       "desc": "Profesjonalne strzyżenie i koloryzacja dla pań i panów.",
       "phone": "+48 123 456 789",
       "email": "kontakt@elegance.pl",
@@ -306,7 +306,7 @@ export const PRESETS = {
 
   "restauracja": {
     "brand": {
-      "title": "Pizzeria Italiana",
+      "title": "Pizzeria",
       "desc": "Prawdziwa włoska pizza w sercu miasta.",
       "phone": "+48 500 400 300",
       "email": "rezerwacja@pizzeriaitaliana.pl",
@@ -354,9 +354,60 @@ export const PRESETS = {
     }
   },
 
+  "bar-kebab": {
+  brand: {
+    title: "Kebab",
+    desc: "Najlepszy kebab w mieście! Zawsze świeże mięso, chrupiące warzywa i autorskie sosy.",
+    phone: "+48 789 123 456",
+    email: "zamowienia@kingkebab.pl",
+    city: "Poznań",
+    address: "ul. Smaczna 7",
+    colors: { brand: "#4338ca", accent: "#f59e0b" } // Głęboki niebieski i złoty/żółty
+  },
+  sections: ALL_SECTIONS,
+  usp: {
+    items: [
+      { icon: "🥙", text: "Mięso 100% z kurczaka/wołowiny" },
+      { icon: "🌶️", text: "Autorskie, świeże sosy" },
+      { icon: "🏍️", text: "Szybki dowóz w okolicy" }
+    ]
+  },
+  offer: {
+    items: [
+      { title: "Kebab w Bułce XXL", desc: "Nasza specjalność! Duża porcja mięsa i warzyw.", price: "25 zł" },
+      { title: "Tortilla Kebab", desc: "Chrupiąca tortilla, klasyczny smak, idealny na lunch.", price: "22 zł" },
+      { title: "Box Kebab z Frytkami", desc: "Idealna opcja na szybkie danie, dużo mięsa i frytek.", price: "28 zł" }
+    ]
+  },
+  pricing: {
+    mode: "list", // Zmieniono na "list" - bardziej pasuje do menu
+    rows: [
+      { title: "Kebab w bułce (Mały)", price: "18 zł", unit: "" },
+      { title: "Kebab w bułce (Duży)", price: "25 zł", unit: "" },
+      { title: "Kebab na talerzu", price: "35 zł", unit: "" },
+      { title: "Falafel (wegetariański)", price: "20 zł", unit: "" },
+      { title: "Frytki z sosem", price: "10 zł", unit: "" }
+    ]
+  },
+  faq: {
+    items: [
+      { q: "Czy macie opcje wegetariańskie?", a: "Tak, oferujemy świeży Falafel z hummusem i warzywami." },
+      { q: "Jaki jest koszt dowozu?", a: "Zależy od strefy. Sprawdź cennik dostaw lub zadzwoń!" },
+      { q: "Czy mogę wybrać rodzaj mięsa?", a: "Oczywiście. Do wyboru kurczak, wołowina lub mieszane." }
+    ]
+  },
+  testimonials: {
+    items: [
+      { author: "Ewa", text: "Najlepszy sos czosnkowy, jakiego próbowałam! Mięso zawsze idealnie doprawione." },
+      { author: "Arek", text: "Zawsze zamawiam z dowozem. Gorący i duży. Pełna satysfakcja!" },
+      { author: "Ola", text: "Porcje są ogromne, a obsługa bardzo miła. Polecam szczególnie Kebab Box." }
+    ]
+  }
+},
+
   "salon-kosmetyczny": {
     "brand": {
-      "title": "Salon Kosmetyczny Bella",
+      "title": "Salon Kosmetyczny",
       "desc": "Zabiegi na twarz i ciało, manicure, pedicure, relaks i piękno.",
       "phone": "+48 600 700 800",
       "email": "kontakt@bellakosmetyka.pl",
@@ -408,7 +459,7 @@ export const PRESETS = {
 
   "uslugi-slusarskie": {
     "brand": {
-      "title": "Ślusarz 24/7 — Awaryjne otwieranie",
+      "title": "Ślusarz",
       "desc": "Zamki, wkładki, drzwi, sejfy. Dojazd w 30–60 minut.",
       "phone": "+48 511 000 111",
       "email": "kontakt@slusarz247.pl",
@@ -458,7 +509,7 @@ export const PRESETS = {
 
   "uslugi-hydrauliczne": {
     "brand": {
-      "title": "HydroFix — Pogotowie hydrauliczne",
+      "title": "Hydraulik",
       "desc": "Naprawy, montaże, przeglądy. Dojazd w ten sam dzień.",
       "phone": "+48 512 111 222",
       "email": "biuro@hydrofix.pl",
@@ -508,7 +559,7 @@ export const PRESETS = {
 
   "uslugi-elektryczne": {
     "brand": {
-      "title": "VoltMax — Elektryk z uprawnieniami",
+      "title": "Elektryk",
       "desc": "Instalacje, pomiary, naprawy. Bezpieczeństwo przede wszystkim.",
       "phone": "+48 513 222 333",
       "email": "kontakt@voltmax.pl",
@@ -558,7 +609,7 @@ export const PRESETS = {
 
   "instalacje-klimatyzacji": {
     "brand": {
-      "title": "CoolAir — Klimatyzacje split i multi",
+      "title": "Instalacje klimatyzacji",
       "desc": "Dobór, montaż, serwis. Komfort przez cały rok.",
       "phone": "+48 514 333 444",
       "email": "biuro@coolair.pl",
@@ -608,7 +659,7 @@ export const PRESETS = {
 
   "biuro-tlumaczen": {
     "brand": {
-      "title": "LinguaPro — Biuro tłumaczeń",
+      "title": "Biuro tłumaczeń",
       "desc": "Tłumaczenia zwykłe i przysięgłe. 40+ języków.",
       "phone": "+48 515 444 555",
       "email": "kontakt@linguapro.pl",
@@ -658,7 +709,7 @@ export const PRESETS = {
 
   "obsluga-imprez": {
     "brand": {
-      "title": "EventCrew — Obsługa i technika",
+      "title": "Eventy i obsługa imprez",
       "desc": "Konferencje, wesela, plener. Nagłośnienie, oświetlenie, DJ.",
       "phone": "+48 516 555 666",
       "email": "hello@eventcrew.pl",
@@ -707,7 +758,7 @@ export const PRESETS = {
   },
   "pielegnacja-ogrodow": {
   brand: {
-    title: "Zielony Zakątek — Ogrody z pasją",
+    title: "Usługi ogrodowe",
     desc: "Projektowanie, zakładanie i pielęgnacja ogrodów.",
     phone: "+48 600 123 456",
     email: "kontakt@zielonyzakatek.pl",
@@ -757,7 +808,7 @@ export const PRESETS = {
 
 "kwiaciarnia": {
   brand: {
-    title: "Florissima — Kwiaty z sercem",
+    title: "Kwiaciarnia",
     desc: "Bukiety, dekoracje, dostawa w 2h.",
     phone: "+48 601 987 654",
     email: "zamowienia@florissima.pl",
@@ -807,7 +858,7 @@ export const PRESETS = {
 
 "naprawa-agd": {
   brand: {
-    title: "AGDfix — Serwis sprzętu domowego",
+    title: "Serwis sprzętu AGD",
     desc: "Naprawy z dojazdem, ekspresowe terminy.",
     phone: "+48 602 123 321",
     email: "serwis@agdfix.pl",
@@ -857,7 +908,7 @@ export const PRESETS = {
 
 "fizjoterapia": {
   brand: {
-    title: "FizjoCare — Zdrowie i mobilność",
+    title: "Fizjoterapia",
     desc: "Rehabilitacja, masaże, terapia manualna.",
     phone: "+48 603 456 789",
     email: "kontakt@fizjocare.pl",
@@ -907,7 +958,7 @@ export const PRESETS = {
 
 "pomoc-drogowa": {
   brand: {
-    title: "AutoRatunek 24h — Pomoc drogowa",
+    title: "Pomoc drogowa",
     desc: "Laweta, awarie, holowanie w całej Polsce.",
     phone: "+48 604 222 333",
     email: "pomoc@autoratunek.pl",
@@ -952,6 +1003,57 @@ export const PRESETS = {
       { author: "Kasia", text: "Pomoc w nocy — przyjechali szybko." },
       { author: "Marek", text: "Uczciwa cena i fachowa obsługa." }
     ]
+  }
+},
+
+"serwis-samochodowy": {
+  brand: {
+    title: "Mechanika Samochodowa",
+    desc: "Kompleksowy serwis, naprawy bieżące i diagnostyka. Szybko, solidnie i z gwarancją.",
+    phone: "+48 501 100 200",
+    email: "kontakt@twojmechanik.pl",
+    city: "Kraków",
+    address: "ul. Serwisowa 5",
+    colors: { brand: "#059669", accent: "#f97316" } // Ciemna zieleń i pomarańcz jako akcent
+  },
+  sections: ALL_SECTIONS,
+  usp: {
+    items: [
+      { icon: "🔧", text: "Gwarancja na usługi" },
+      { icon: "⚙️", text: "Komputerowa diagnostyka" },
+      { icon: "🗓️", text: "Krótkie terminy napraw" }
+    ]
+  },
+  offer: {
+    items: [
+      { title: "Wymiana Oleju i Filtrów", desc: "Szybki serwis eksploatacyjny, wszystkie marki.", price: "od 150 zł (robocizna)" },
+      { title: "Serwis Klimatyzacji", desc: "Napełnianie, odgrzybianie i diagnostyka.", price: "od 199 zł" },
+      { title: "Wymiana Rozrządu", desc: "Kompleksowa usługa z częściami i gwarancją.", price: "Wycena indywidualna" }
+    ]
+  },
+  pricing: {
+    mode: "table",
+    rows: [
+      { title: "Diagnostyka komputerowa", price: "120 zł", unit: "" },
+      { title: "Wymiana klocków hamulcowych (oś)", price: "od 100 zł", unit: "" },
+      { title: "Wymiana tarcz i klocków (oś)", price: "od 220 zł", unit: "" },
+      { title: "Przegląd przed zakupem", price: "od 180 zł", unit: "" },
+      { title: "Montaż/Demontaż opon (za 4 koła)", price: "od 150 zł", unit: "" }
+    ]
+  },
+  faq: {
+    items: [
+      { q: "Jak długo trwa typowa naprawa?", a: "To zależy od złożoności. Podamy wstępny czas przy przyjęciu pojazdu." },
+      { q: "Czy mogę przywieźć własne części?", a: "Tak, jednak na części klienta nie udzielamy gwarancji." },
+      { q: "Czy prowadzicie serwis klimatyzacji?", a: "Tak, pełen serwis: odgrzybianie, sprawdzenie szczelności i napełnianie czynnika." }
+    ]
+  },
+  testimonials: {
+    items: [
+      { author: "Piotr", text: "Szybka i profesjonalna naprawa zawieszenia. Polecam za uczciwość." },
+      { author: "Ania", text: "Świetna obsługa i rzetelna diagnostyka! Wreszcie znalazłam zaufanego mechanika." },
+      { author: "Krzysztof", text: "Wymiana rozrządu bez problemów, konkurencyjna cena i fachowe doradztwo." }
+      ]
   }
 },
 }

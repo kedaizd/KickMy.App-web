@@ -79,7 +79,7 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
       alert(t.rightPanel?.orderSent || 'Zamówienie zostało wysłane! Sprawdź skrzynkę.');
 
       // (opcjonalnie) Lokalnie pobierz ZIP dla użytkownika
-      exportZip(cfg);
+      // exportZip(cfg);
       // (opcjonalnie) albo zapis samych ustawień:
       // exportConfigJson(cfg);
 
@@ -166,6 +166,17 @@ export default function RightPanel({ cfg, priceData, update, showRight, setShowR
       >
         {isSending ? (t.rightPanel?.ordering || 'Wysyłanie…') : (t.rightPanel?.orderBtn || 'Składam zamówienie')}
       </button>
+      {import.meta.env.DEV && (
+  <button
+    type="button"
+    style={{ ...btnStyle, background:'#0f172a', color:'#fff', marginTop: 8 }}
+    onClick={() => exportZip(cfg)}
+    title="Tylko lokalnie w trybie DEV"
+  >
+    Pobierz ZIP (DEV)
+  </button>
+)}
+
     </div>
 
     {/* JSON konfiguracyjny zostanie dołączony do e-maila jako osobny załącznik `order-<id>.json`. */}
