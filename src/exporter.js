@@ -618,8 +618,19 @@ export async function exportZip(cfg, opts = {}) {
 export async function getExportZipBase64(cfg) {
   const zipBlob = await buildZipBlob(cfg);
   const arrayBuf = await zipBlob.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuf)));
+  const base64 = arrayBufferToBase64(arrayBuf);
   return base64;
+}
+
+function arrayBufferToBase64(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const chunkSize = 0x8000; // process in chunks to avoid exceeding argument limit
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
 }
 
 export function exportConfigJson(cfg, notes) {
