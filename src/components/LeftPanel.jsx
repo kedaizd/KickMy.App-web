@@ -35,7 +35,7 @@ const SECTION_LABELS = Object.freeze({
 
 const getSectionLabel = (key) => SECTION_LABELS[key] || key;
 
-function LeftPanel({ cfg, update }) {
+function LeftPanel({ cfg, update, loadCompanyData }) {
   const t = getTranslation(cfg);
   const [activeSection, setActiveSection] = useState('');
   const [removedSections, setRemovedSections] = useState([]);
@@ -268,6 +268,20 @@ function LeftPanel({ cfg, update }) {
 
       {/* COMPANY INFO FIELDS */}
       <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{...subheadingStyle, margin: 0}}>{t.leftPanel?.brandInfo || 'Informacje o marce'}</h3>
+          <button
+            onClick={loadCompanyData}
+            className="btn"
+            style={{
+              ...buttonStyle,
+              fontSize: 13, padding: '6px 12px', background: '#f9fafb'
+            }}
+            title="Wczytaj dane z profilu firmy zapisanego w osobnym narzędziu"
+          >
+            {t.leftPanel?.loadCompanyData || 'Wczytaj dane firmy'}
+          </button>
+        </div>
         <label>{t.leftPanel?.companyName || 'Nazwa'}</label>
         <input
           type="text"

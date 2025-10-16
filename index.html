@@ -1,25 +1,389 @@
-
 <!DOCTYPE html>
 <html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KickMy Configurator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-      <!-- [DODAJ] Favicons -->
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
-    <!-- [DODAJ] Ukryty formularz dla Netlify Forms (żeby wykryło w czasie builda) -->
-<form name="contact" netlify netlify-honeypot="bot-field" hidden>
-  <input type="text" name="name" />
-  <input type="email" name="email" />
-  <textarea name="message"></textarea>
-</form>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KickMy.App Tools – darmowe narzędzia AI dla małych firm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/company-profile.css">
+  <style>
+    :root {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg: #0f172a;
+      --accent: #f97316;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #0f172a;
+    }
+    header {
+      background: radial-gradient(circle at top left, rgba(249,115,22,0.4), transparent 45%), #0f172a;
+      color: #f8fafc;
+      padding: clamp(56px, 10vw, 120px) 0 80px;
+    }
+    .container {
+      width: min(1040px, 92vw);
+      margin: 0 auto;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    nav a.brand {
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      color: inherit;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav .coffee {
+      background: rgba(255,255,255,0.08);
+      color: #fbd38d;
+      padding: 10px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    nav .coffee:hover { background: rgba(255,255,255,0.18); }
+    .hero {
+      display: grid;
+      gap: 28px;
+      width: min(780px, 100%);
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      margin: 0;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+    }
+    .hero p {
+      color: rgba(226,232,240,0.88);
+      font-size: 18px;
+      margin: 0;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .hero-actions a {
+      padding: 14px 22px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .hero-actions a.primary {
+      background: #f97316;
+      color: #fff;
+      box-shadow: 0 18px 45px rgba(249,115,22,0.35);
+    }
+    .hero-actions a.secondary {
+      color: #f1f5f9;
+      border: 1px solid rgba(148,163,184,0.35);
+    }
+    .hero-actions a:hover { transform: translateY(-3px); }
+    main {
+      background: #f8fafc;
+      border-radius: 32px 32px 0 0;
+      margin-top: -48px;
+      padding: clamp(56px, 8vw, 96px) 0;
+    }
+    .section-title {
+      margin-bottom: 40px;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+    }
+    .section-title p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .tools-grid {
+      display: grid;
+      gap: 28px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tool-card {
+      background: var(--card);
+      border-radius: 22px;
+      padding: 28px;
+      border: 1px solid rgba(15,23,42,0.08);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow: hidden;
+    }
+    .tool-card h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .tool-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .tool-card figure {
+      margin: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    .tool-card figure img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+    .tool-card a {
+      align-self: flex-start;
+      margin-top: auto;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.12);
+      text-decoration: none;
+      font-weight: 600;
+      color: #0f172a;
+      background: rgba(15,23,42,0.05);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .tool-card a:hover {
+      transform: translateY(-2px);
+      background: rgba(249,115,22,0.18);
+    }
+    .roadmap {
+      margin-top: clamp(48px, 8vw, 80px);
+      padding: 32px;
+      border-radius: 24px;
+      background: #0f172a;
+      color: #f1f5f9;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.25);
+    }
+    .roadmap h2 { margin-top: 0; }
+    .roadmap ul {
+      margin: 16px 0 0;
+      padding-left: 20px;
+      color: rgba(226,232,240,0.85);
+    }
+    footer {
+      background: #0b1220;
+      color: rgba(226,232,240,0.72);
+      padding: 36px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+    footer a {
+      color: #fbd38d;
+    }
+    @media (max-width: 640px) {
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .tool-card { padding: 22px; }
+      .roadmap { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a class="brand" href="#">KickMy.App Tools</a>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a href="./tools/company-data/index.html" class="coffee" style="background:rgba(255,255,255,0.12);">Zapisz dane swojej firmy</a>
+          <a class="coffee" href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener">Postaw mi kawę</a>
+        </div>
+      </nav>
+
+      <div class="hero">
+        <h1>Rozwijam swoje umiejętności AI i tworzę darmowe narzędzia dla małych biznesów.</h1>
+        <p>
+          KickMy.App Tools to zestaw praktycznych generatorów i kalkulatorów, które tworzę po godzinach.
+          Możesz korzystać z nich bezpłatnie. Jeśli jedno z narzędzi oszczędzi Ci czas lub pieniądze — będzie mi miło,
+          gdy postawisz mi kawę.
+        </p>
+        <div class="hero-actions">
+          <a class="primary" href="#narzedzia">Sprawdź darmowe narzędzia</a>
+          <a class="secondary" href="mailto:kontakt@kickmy.app">Masz pomysł? Napisz do mnie</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="narzedzia">
+    <div class="container">
+
+            <div class="section-title">
+        <h2>Zestaw narzędzi KickMy</h2>
+        <p>Darmowe narzędzia, które możesz uruchomić w przeglądarce. Bez logowania, bez instalacji.</p>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Dane firmy</h3>
+            <p>Zapisuj dane swojej firmy i wykorzystaj w innych narzędziach. Dane trzyma wpisy w localStorage.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Raporty dzienne salonu" />
+          </figure>
+          <a href="./tools/company-data/index.html" title="Dane firmy">Przejdź do uzupełniania danych</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Kreator strony www</h3>
+            <p>Skonfiguruj landing page, pobierz gotowe pliki i wrzuć je na Netlify. W zestawie sekcje: hero, oferta, opinie, mapa, formularz oraz eksport ZIP.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Kreator strony www" />
+          </figure>
+          <a href="./builder.html#/" title="Kreator strony">Uruchom kreator</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Kalkulator kosztów usług</h3>
+            <p>Formularz dla ekip remontowych, hydraulików i elektryków. Dobierz materiały, policz roboczogodziny, dodaj marżę i wygeneruj raport.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/5449659/pexels-photo-5449659.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Kalkulator kosztów usług" />
+          </figure>
+          <a href="./tools/cost-calculator/index.html" title="Kalkulator kosztów">Przejdź do kalkulatora</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Raporty dzienne salonu</h3>
+            <p>Zapisuj dzienne usługi, przychody i notatki. Narzędzie sumuje dane, rysuje wykres i trzyma wpisy w localStorage.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Raporty dzienne salonu" />
+          </figure>
+          <a href="./tools/daily-reports/index.html" title="Raporty dzienne">Przejdź do raportów</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Planer harmonogramu</h3>
+            <p>Zorganizuj kalendarz wizyt: daty, godziny i notatki. Planer zapisuje dane w localStorage i ostrzega o konfliktach terminów.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/4269692/pexels-photo-4269692.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Planer harmonogramu" />
+          </figure>
+          <a href="./tools/schedule-planner/index.html" title="Planer harmonogramu">Otwórz planer</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Szablony social media</h3>
+            <p>Personalizowane teksty i grafiki do social media. Podstaw swoją markę i skopiuj gotowy post bez blokady pisarskiej.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3184431/pexels-photo-3184431.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Szablony social media" />
+          </figure>
+          <a href="./tools/social-templates/index.html" title="Szablony social">Przejdź do szablonów</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Generator ofert cenowych</h3>
+            <p>Dobierz usługi, ceny i warunki. Generator tworzy gotowy dokument HTML do wysłania klientowi.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/6476584/pexels-photo-6476584.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Generator ofert cenowych" />
+          </figure>
+          <a href="./tools/offer-generator/index.html" title="Generator ofert">Przygotuj ofertę</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Generator umów serwisowych</h3>
+            <p>Uzupełnij dane stron, zakres prac i warunki. Generator tworzy tekst umowy do skopiowania lub PDF.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/5583448/pexels-photo-5583448.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Generator umów serwisowych" />
+          </figure>
+          <a href="./tools/service-agreement/index.html" title="Generator umów">Przygotuj umowę</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Generator pomysłów na ofertę</h3>
+            <p>Losowe inspiracje dla pizzerii, salonu kosmetycznego i innych biznesów. Personalizuj i zapisuj ulubione pomysły.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Generator pomysłów" />
+          </figure>
+          <a href="./tools/business-ideas/index.html" title="Generator pomysłów">Odkryj pomysły</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-copy">
+            <h3>Szablony e-mail i SMS</h3>
+            <p>Gotowe przypomnienia, oferty i follow-upy. Personalizuj dane kontaktowe i kopiuj tekst jednym kliknięciem.</p>
+          </div>
+          <figure>
+            <img src="https://images.pexels.com/photos/3184302/pexels-photo-3184302.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Szablony e-mail i SMS" />
+          </figure>
+          <a href="./tools/email-templates/index.html" title="Szablony e-mail">Wyślij wiadomość</a>
+        </article>
+      </div>
+
+      <section class="roadmap">
+        <h2>Co dalej?</h2>
+        <p>Rozbudowuję KickMy.App o kolejne mini-aplikacje. Na tapecie:</p>
+        <ul>
+          <li>Generator pakietów social media (posty + grafiki + najprostszy kalendarz).</li>
+          <li>Checklisty wdrożeniowe dla nowych klientów (PDF lub szablon Notion).</li>
+          <li>Narzędzia do automatyzacji e-maili z wykorzystaniem AI (prompty + gotowe treści).</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container" id="company-profile">
+      KickMy.App Tools — darmowe narzędzia. Jeśli chcesz pogadać o AI w małym biznesie, napisz na
+      <a href="mailto:kontakt@kickmy.app">kontakt@kickmy.app</a>.
+    </div>
+  </footer>
+
+  <!-- Moduł profilu firmy -->
+  <script src="./assets/company-profile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('companyProfileForm');
+      if (form && window.CompanyProfile) {
+        CompanyProfile.bind(form);
+        CompanyProfile.fillPlaceholders(document);
+
+        document.getElementById('companyExportBtn')
+          .addEventListener('click', CompanyProfile.exportJSON);
+
+        document.getElementById('companyImportFile')
+          .addEventListener('change', (e) => {
+            CompanyProfile.importJSONFromFile(e.target.files[0]);
+            setTimeout(() => CompanyProfile.fillPlaceholders(document), 0);
+          });
+      }
+    });
+  </script>
+</body>
 </html>

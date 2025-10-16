@@ -33,6 +33,26 @@ export default function App(){
   const [snack, setSnack] = useState('')
   const [showRight, setShowRight] = useState(true);
 
+  function loadCompanyData(){
+    const COMPANY_PROFILE_KEY = 'kickmy-company-profile';
+    try {
+      const profileData = JSON.parse(localStorage.getItem(COMPANY_PROFILE_KEY) || '{}');
+      if (Object.keys(profileData).length === 0) {
+        alert('Nie znaleziono profilu firmy. Uzupełnij go w narzędziu "Dane firmy", aby skorzystać z tej funkcji.');
+        return;
+      }
+
+      setCfg(prev => ({...prev, brand: {
+        ...prev.brand,
+        title: profileData.name || prev.brand.title,
+        phone: profileData.phone || prev.brand.phone,
+        email: profileData.email || prev.brand.email,
+        address: profileData.street || prev.brand.address,
+        city: profileData.city || prev.brand.city,
+      }}));
+    } catch (e) { alert('Wystąpił błąd podczas wczytywania profilu firmy.'); }
+  }
+
   // propagate CSS variables (brand/accent + hero start/end)
   useEffect(()=>{
     const root = document.documentElement
@@ -84,7 +104,7 @@ export default function App(){
       </div>
       <div className="left">
         <div className="panel">
-          <LeftPanel cfg={cfg} update={update} />
+          <LeftPanel cfg={cfg} update={update} loadCompanyData={loadCompanyData} />
         </div>
       </div>
 
