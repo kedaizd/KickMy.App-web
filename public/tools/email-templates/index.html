@@ -1,0 +1,126 @@
+﻿﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Szablony e-mail i SMS dla Klientów - KickMy Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Szablony e-mail i SMS</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Szablony e-mail i SMS dla klient&oacute;w</h1>
+      <p>Gotowe wiadomości przypominające, promocyjne i serwisowe. Personalizuj dane marki, terminy i rabaty, kopiuj tekst jednym kliknięciem.</p>
+    </section>
+
+    <section class="controls card">
+      <h2>Personalizacja</h2>
+      <div class="grid">
+        <label>Nazwa firmy / marki
+          <input type="text" id="brand" placeholder="np. Studio Glow" />
+        </label>
+        <label>Kontakt (telefon / e-mail)
+          <input type="text" id="contact" placeholder="np. 123 456 789" />
+        </label>
+        <label>Data / termin
+          <input type="text" id="date" placeholder="np. 15 kwietnia o 17:30" />
+        </label>
+        <label>Rabat / benefit
+          <input type="text" id="bonus" placeholder="np. -15% na kolejną wizytę" />
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" id="apply" class="btn-primary">Zastosuj</button>
+        <button type="button" id="reset" class="btn-secondary">Resetuj</button>
+        <button type="button" id="apply-profile" class="btn-secondary">Wczytaj z profilu</button>
+      </div>
+    </section>
+
+    <section class="templates-grid">
+      <article class="template-card">
+        <div class="meta">
+          <span class="pill">Przypomnienie wizyty</span>
+          <h3>E-mail: przypomnienie o terminie</h3>
+        </div>
+        <textarea readonly rows="7" data-template="reminder">Dzien dobry!
+
+Przypominamy o umowionej wizycie w [BRAND] dnia [DATE].
+Jesli potrzebujesz zmiany terminu, daj prosze znac pod [CONTACT].
+
+Do zobaczenia!
+Zespół [BRAND]</textarea>
+        <div class="template-actions">
+          <button type="button" class="copy">Kopiuj</button>
+        </div>
+      </article>
+
+      <article class="template-card">
+        <div class="meta">
+          <span class="pill">Oferta promocyjna</span>
+          <h3>E-mail: promocja sezonowa</h3>
+        </div>
+        <textarea readonly rows="8" data-template="promo">Cześć!
+
+W [BRAND] startujemy z nową ofertą dla stałych klientów. Tylko do końca miesiąca skorzystasz z [BONUS].
+Zarezerwuj termin przez [CONTACT] i odbierz zniżkę.
+
+Miłego dnia!
+Zespół [BRAND]</textarea>
+        <div class="template-actions">
+          <button type="button" class="copy">Kopiuj</button>
+        </div>
+      </article>
+
+      <article class="template-card">
+        <div class="meta">
+          <span class="pill">Serwis / status</span>
+          <h3>SMS: informacje o zleceniu</h3>
+        </div>
+        <textarea readonly rows="6" data-template="status">[BRAND] informuje: zlecenie jest w trakcie realizacji. Planowane zakończenie [DATE].
+W razie pytań napisz lub zadzwoń [CONTACT].</textarea>
+        <div class="template-actions">
+          <button type="button" class="copy">Kopiuj</button>
+        </div>
+      </article>
+
+      <article class="template-card">
+        <div class="meta">
+          <span class="pill">Podziękowanie</span>
+          <h3>E-mail: follow-up po wizycie</h3>
+        </div>
+        <textarea readonly rows="8" data-template="thanks">Dziękujemy za wizytę w [BRAND]!
+
+Mamy nadzieję, że wszystko przebiegło zgodnie z oczekiwaniami. Jeśli masz chwilę, podziel się opinią – odezwiemy się z [BONUS] jako podziękowaniem.
+
+Pozdrawiamy,
+[BRAND]
+Kontakt: [CONTACT]</textarea>
+        <div class="template-actions">
+          <button type="button" class="copy">Kopiuj</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe szablony komunikacji. Jeżeli wiadomości są pomocne, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

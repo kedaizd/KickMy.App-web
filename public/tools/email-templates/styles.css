@@ -1,0 +1,277 @@
+﻿/* --- JEDNOLITE STYLE (PLANER HARMONOGRAMU) --- */
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bg: #0f172a;
+  --accent: #f97316;
+  --muted: #475569;
+  --card: #ffffff;
+  --border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+
+/* JEDNOLITE TŁO */
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #0f172a 0%, #f1f5f9 65%, #fff 100%);
+  color:#e2e8f0;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.container {
+  width: min(1080px, 94vw);
+  margin: 0 auto;
+}
+
+.page-header,
+.page-footer {
+  color: #f1f5f9;
+}
+
+/* JEDNOLITY HEADER I STOPKA */
+.page-header .container {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+.page-footer .container {
+  display: flex;
+  gap: 8px; 
+  align-items: center;
+  justify-content: center; /* Wyśrodkowanie w poziomie */
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+.page-footer {
+  background: rgba(15,23,42,0.92);
+  font-size: 14px;
+  text-align: center;
+}
+
+.page-footer a { color: #fbd38d; }
+
+.brand {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.breadcrumbs {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.breadcrumbs a { color: #e2e8f0; text-decoration: none; }
+
+/* JEDNOLITA SEKCJA HERO/INTRO */
+.intro {
+  margin: 64px auto 36px;
+  text-align: center;
+  color:#e2e8f0;
+  width: min(720px, 100%);
+}
+
+.intro h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.intro p {
+  margin: 0;
+  color: #e2e8f0;
+}
+
+/* UJEDNOLICONE KARTY */
+.card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 28px;
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: 0 24px 50px rgba(15,23,42,0.35);
+  color: var(--bg);
+  margin-bottom: 28px;
+}
+
+h2 {
+    color: var(--bg);
+}
+.card h2 { margin-top: 0; }
+
+/* UJEDNOLICONE LABELE I INPUTY */
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+input,
+textarea,
+select {
+  padding: 12px;
+  border-radius: 12px;
+  border:1px solid rgba(148,163,184,0.25);
+  font: inherit;
+  background: rgba(15,23,42,0.9);
+  color: #e2e8f0;
+}
+
+/* JEDNOLITE PRZYCISKI */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn,
+.btn-secondary { background: #e2e8f0; color: var(--bg); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary.danger { background: #fecaca; color: #b91c1c; } /* override dla niebezpiecznych akcji */
+
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover { transform: translateY(-2px); }
+
+
+/* JEDNOLITY TEKST W STOPCE */
+.footer-text {
+    line-height: 1.4;
+    color: #f1f5f9;
+}
+
+/* JEDNOLITY PRZYCISK W STOPCE */
+.btn-buy-coffee {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+  
+  background: var(--accent); 
+  color: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4); 
+}
+
+.btn-buy-coffee:hover {
+  background: transparent;
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+/* --- KONIEC JEDNOLITYCH STYLÓW --- */
+
+
+/* --- UNIKALNE STYLE SZABLONÓW E-MAIL/SMS --- */
+
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.templates-grid {
+  margin: 36px 0 56px;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.template-card {
+  background: var(--card); /* Ujednolicona karta */
+  border-radius: 22px; /* Ujednolicony promień */
+  padding: 24px;
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: 0 24px 50px rgba(15,23,42,0.35);
+  display: grid;
+  gap: 14px;
+}
+
+.template-card h3 { 
+    margin: 0; 
+    color: var(--bg); 
+}
+.template-card textarea {
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px;
+  border:1px solid rgba(148,163,184,0.28);
+  background: rgba(15,23,42,0.7);
+  color: #e2e8f0;
+  font: inherit;
+  resize: vertical;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.template-actions {
+  display: flex;
+  justify-content: flex-end; /* Wyrównanie przycisku do prawej */
+}
+
+/* Wyróżnik - Pigułka (pill) */
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+
+/* --- RESPONSYWNOŚĆ --- */
+
+@media (max-width: 640px) {
+  .actions { flex-direction: column; align-items: stretch; }
+  
+  .page-header .container {
+    justify-content: center;
+    text-align: center;
+  }
+  .breadcrumbs { display: none; }
+  
+  /* Wyśrodkowanie w stopce na mobile */
+  .page-footer .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px; 
+  }
+  .btn-buy-coffee {
+    width: 100%;
+    margin-top: 0;
+  }
+  .desktop-only {
+    display: none;
+  }
+}

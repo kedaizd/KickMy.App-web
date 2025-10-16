@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planer harmonogramu - KickMy Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Planer harmonogramu</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Planer wizyt i usług</h1>
+      <p>Zarządzaj kalendarzem salonu kosmetycznego, serwisu mobilnego lub opiekuna ogrodów. Dodaj terminy, godziny i notatki. Planer zapisuje dane lokalnie, wykrywa konflikty i pomaga reagować z wyprzedzeniem.</p>
+    </section>
+
+    <section class="grid">
+      <form id="event-form" class="card">
+        <h2>Dodaj wizyte</h2>
+        <div class="row">
+          <label>Liczba stanowisk (1–5)
+            <select id="stationCount">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+          <label>Stanowisko
+            <select id="station">
+              <option value="1">1</option>
+            </select>
+          </label>
+        </div>
+        <label>Data
+          <input type="date" id="date" required />
+        </label>
+        <div class="row">
+          <label>Godzina startu
+            <input type="time" id="start" required />
+          </label>
+          <label>Godzina zakonczenia
+            <input type="time" id="end" required />
+          </label>
+        </div>
+        <label>Klient / usluga
+          <input type="text" id="client" placeholder="np. Anna - manicure hybrydowy" required />
+        </label>
+        <label>Notatki dodatkowe
+          <textarea id="notes" rows="3" placeholder="np. alergia na lateks, przygotowac stanowisko nr 2"></textarea>
+        </label>
+        <button type="submit" class="btn-primary">Zapisz termin</button>
+      </form>
+
+      <section class="card" id="summary">
+        <h2>Podsumowanie</h2>
+        <div class="summary-grid">
+          <div>
+            <span class="label">Najblizszy termin</span>
+            <strong id="next-event">Brak wpisow</strong>
+          </div>
+          <div>
+            <span class="label">Liczba wizyt w tym tygodniu</span>
+            <strong id="week-count">0</strong>
+          </div>
+        </div>
+        <div id="conflict-banner" class="banner hidden">
+          Wykryto konflikty terminow – sprawdz zaznaczone wpisy!
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="copy-day" class="btn-secondary">Kopiuj raport dnia</button>
+          <button type="button" id="clear-all" class="btn-danger">Wyczysc wszystkie wpisy</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="card schedule">
+      <div class="schedule-header">
+        <h2>Harmonogram</h2>
+      </div>
+
+      <div id="calendarView" class="calendar">
+        <div class="cal-header">
+          <button type="button" id="prevMonth" title="Poprzedni miesiąc">‹</button>
+          <div class="cal-title" id="calTitle">Miesiąc RRRR</div>
+          <button type="button" id="nextMonth" title="Następny miesiąc">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <div class="cal-dow">Pn</div>
+          <div class="cal-dow">Wt</div>
+          <div class="cal-dow">Śr</div>
+          <div class="cal-dow">Cz</div>
+          <div class="cal-dow">Pt</div>
+          <div class="cal-dow">So</div>
+          <div class="cal-dow">Nd</div>
+          </div>
+        <div class="cal-legend">
+          <span class="dot has"></span> ma wizyty
+          <span class="dot today"></span> dziś
+          <span class="dot selected"></span> wybrany dzień
+        </div>
+        <div class="cal-stations">
+          <button type="button" id="calStationsBtn" class="btn-secondary">Widoczność stanowisk ▾</button>
+          <div id="calStationsPanel" class="dropdown hidden">
+            <label class="chk"><input type="checkbox" id="calStationAll" checked /> Wszystkie</label>
+            <div id="calStationsList" class="chk-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-range">
+        <label>Zakres harmonogramu
+          <select id="listRange">
+            <option value="1" selected>1 dzień</option>
+            <option value="3">3 dni</option>
+            <option value="7">7 dni</option>
+            <option value="30">30 dni</option>
+          </select>
+        </label>
+        <label>Stanowisko
+          <select id="stationFilter">
+            <option value="all" selected>Wszystkie</option>
+            <option value="1">1</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="schedule-list" class="schedule-list">
+        <div class="empty">Brak zaplanowanych wizyt. Dodaj pierwszy termin.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe narzędzia organizacyjne. Jesli planer pomaga, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>

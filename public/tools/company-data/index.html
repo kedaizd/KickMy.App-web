@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dane Twojej firmy (Lokalny Profil) - KickMy Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" /> 
+  <style>
+    /* Style z pierwotnego company-data.html, przeniesione do styles.css */
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Dane firmy</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Lokalny Profil Firmowy</h1>
+      <p>Wprowadź i zapisz dane swojej firmy. Będą one przechowywane <strong>wyłącznie lokalnie</strong> w Twojej przeglądarce, by uprościć korzystanie z innych narzędzi KickMy.App (np. generowanie dokumentów).</p>
+      <p style="color:#b91c1c; font-weight: 600;">⚠️ Nikt poza Tobą nie ma dostępu do tych danych.</p>
+    </section>
+
+    <section id="company-profile" class="card">
+      <h2 style="margin-top:0;">Dane firmy (Zapis automatyczny)</h2>
+      <form id="companyProfileForm" class="company-grid">
+        <div>
+          <label for="name">Nazwa firmy</label>
+          <input id="name" name="name" autocomplete="organization" placeholder="np. ACME Sp. z o.o.">
+        </div>
+        <div>
+          <label for="nip">NIP</label>
+          <input id="nip" name="nip" inputmode="numeric" placeholder="np. 525265XXXX">
+        </div>
+        <div>
+          <label for="regon">REGON</label>
+          <input id="regon" name="regon" inputmode="numeric" placeholder="opcjonalnie">
+        </div>
+        <div>
+          <label for="street">Ulica i nr</label>
+          <input id="street" name="street" autocomplete="address-line1" placeholder="np. Prosta 51">
+        </div>
+        <div>
+          <label for="postal">Kod pocztowy</label>
+          <input id="postal" name="postal" autocomplete="postal-code" placeholder="00-123">
+        </div>
+        <div>
+          <label for="city">Miasto</label>
+          <input id="city" name="city" autocomplete="address-level2" placeholder="Warszawa">
+        </div>
+        <div>
+          <label for="email">E-mail</label>
+          <input id="email" name="email" autocomplete="email" placeholder="biuro@firma.pl">
+        </div>
+        <div>
+          <label for="phone">Telefon</label>
+          <input id="phone" name="phone" autocomplete="tel" placeholder="+48 600 000 000">
+        </div>
+        <div>
+          <label for="bank">Bank</label>
+          <input id="bank" name="bank" placeholder="np. mBank">
+        </div>
+        <div>
+          <label for="iban">Numer konta (IBAN)</label>
+          <input id="iban" name="iban" placeholder="PL00 0000 0000 0000 0000 0000 0000">
+        </div>
+        <div>
+          <label for="contact">Osoba kontaktowa</label>
+          <input id="contact" name="contact" placeholder="Jan Kowalski">
+        </div>
+      </form>
+      <div class="company-actions">
+        <button type="button" id="companyExportBtn" class="btn-secondary" title="Pobierz JSON">Eksport JSON</button>
+        <input type="file" id="companyImportFile" accept="application/json" style="display:none">
+        <label for="companyImportFile" class="btn-secondary" title="Wczytaj JSON">Import JSON</label>
+        <button type="reset" form="companyProfileForm" class="btn-secondary">Wyczyść profil</button>
+      </div>
+      <p style="margin-top:12px; color:#475569; font-size:14px;">
+        Wskazówka: Wartości profilu możesz wstawiś w innych narzędziach (np. generatorze umów) używając specjalnych znaczników.
+      </p>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe narzędzia dla mikro firm. Jeśli profil pomaga, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>

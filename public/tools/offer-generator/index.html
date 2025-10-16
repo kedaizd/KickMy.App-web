@@ -1,0 +1,187 @@
+﻿﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator ofert cenowych - KickMy Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Generator ofert</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Generator ofert</h1>
+      <p class="muted">
+        Wybierz branżę z presetów i zbuduj wycenę w tabeli. Zmiana ilości/ceny/VAT automatycznie przelicza
+        wartości Netto/VAT/Brutto i sumy.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Dane sprzedawcy</h2>
+      <div class="grid-2">
+        <label>Nazwa sprzedawcy
+          <input id="seller-name" type="text" placeholder="Twoja firma" />
+        </label>
+        <label>Adres / NIP
+          <input id="seller-details" type="text" placeholder="Ulica, kod, miasto, NIP" />
+        </label>
+      </div>
+      <button type="button" id="apply-seller" class="btn-secondary" style="margin-top: 10px;">Wczytaj z profilu firmy</button>
+    </section>
+
+    <section class="card">
+      <h2>Dane klienta</h2>
+      <div class="grid-2">
+        <label>Nazwa klienta
+          <input id="client" type="text" placeholder="Firma / Osoba" />
+        </label>
+        <label>E-mail
+          <input id="email" type="email" placeholder="kontakt@firma.pl" />
+        </label>
+        <label>Numer oferty
+          <input id="offer-id" type="text" placeholder="np. OF-2025/01/001" />
+        </label>
+        <label>Data wystawienia
+          <input id="date" type="date" value="2025-10-12" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Zakres oferty</h2>
+      <div class="grid-2">
+        <label>Nazwa projektu
+          <input id="title" type="text" placeholder="np. Wycena rebrandingu" />
+        </label>
+        <div>
+          <label>Preset branżowy
+            <select id="industry-select">
+              <option value="">— wybierz branżę —</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; background: var(--bg); color: #e2e8f0;">
+        <h4>Propozycje z presetu</h4>
+        <div id="industry-suggestions" class="suggestions-grid"></div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; background: var(--bg); color: #e2e8f0;">
+        <h4>Dodaj własną pozycję</h4>
+        <div class="custom-add-grid">
+            <label>Nazwa
+              <input id="custom-name" type="text" placeholder="np. Konsultacja projektowa">
+            </label>
+            <label>Jednostka
+              <input id="custom-unit" type="text" value="szt.">
+            </label>
+            <label>Cena jedn.
+              <input id="custom-price" type="number" min="0" step="any" placeholder="0.00">
+            </label>
+            <label>Ilość
+              <input id="custom-qty" type="number" min="0" step="any" value="1">
+            </label>
+            <label>VAT (%)
+              <input id="custom-vat" type="number" min="0" max="99" step="1" value="23">
+            </label>
+        </div>
+        <button type="button" id="add-custom" class="btn-secondary" style="margin-top: 10px;">+ Dodaj pozycję do tabeli</button>
+      </div>
+
+      <div class="table-wrap">
+        <h3>Elementy wyceny</h3>
+        <table class="calc-table">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 30%;">Opis usługi / produktu</th>
+              <th scope="col">Jedn.</th>
+              <th scope="col">Cena jedn.</th>
+              <th scope="col">Ilość</th>
+              <th scope="col">VAT (%)</th>
+              <th scope="col" class="right">Netto</th>
+              <th scope="col" class="right">VAT</th>
+              <th scope="col" class="right">Brutto</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody id="items-tbody"></tbody>
+          <tfoot>
+            <!-- Stopka może być pusta lub zawierać inne elementy w przyszłości -->
+          </tfoot>
+        </table>
+      </div>
+
+      <div id="summary" class="summary-grid">
+        <div class="summary-item">
+          <span class="label">Suma Netto</span>
+          <span id="sum-net" class="value">0.00 PLN</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Suma VAT</span>
+          <span id="sum-vat" class="value">0.00 PLN</span>
+        </div>
+        <div class="summary-item main-sum">
+          <span class="label">Suma Brutto</span>
+          <span id="sum-gross" class="value">0.00 PLN</span>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 20px;">
+        <label>Data ważności oferty
+          <input id="validity" type="date" placeholder="Data ważności oferty" />
+        </label>
+        <label>Warunki płatności
+          <input id="payment" type="text" placeholder="np. 50/50, przelew 7 dni" />
+        </label>
+      </div>
+      <label>Dodatkowe uwagi
+        <textarea id="notes" rows="3" placeholder="Dodatkowe informacje dla klienta"></textarea>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Podgląd oferty</h2>
+      <div id="preview" class="preview">
+        <p class="muted">Uzupełnij dane i zakres — podgląd pojawi się tutaj.</p>
+      </div>
+      <div class="actions">
+        <button id="generate" class="btn-primary">Generuj ofertę</button>
+        <button id="export-pdf" class="btn-secondary">Eksportuj do PDF</button>
+        <button id="copy" class="btn-secondary">Kopiuj treść</button>
+        <button id="save-draft" class="btn-secondary">Zapisz szkic</button>
+        <button id="clear" class="btn-secondary danger">Wyczyść</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Twoje zapisane szkice</h2>
+      <p>Przeglądarka zapamiętuje ostatnie oferty (localStorage). Możesz je szybko wczytać lub usunąć.</p>
+      <ul id="drafts" class="drafts-list"></ul>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowy generator ofert. Jeżeli narzędzie jest pomocne, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

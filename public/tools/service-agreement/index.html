@@ -1,0 +1,147 @@
+﻿﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator umów serwisowych - KickMy.App Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Generator umów</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Generator umów serwisowych</h1>
+      <p>Wybierz branżę, Uzupełnij wymagane pola i warunki. Narzędzie tworzy gotowy tekst umowy lub PDF.</p>
+    </section>
+
+    <section class="grid">
+      <form id="agreement-form" class="card">
+        <h2>Dane stron</h2>
+        <!-- Ukryte pola na dane wykonawcy (wypełniane z profilu) -->
+<label>Wykonawca (nazwa)
+  <input id="provider" type="text" placeholder="np. Firma XYZ Sp. z o.o. lub Jan Kowalski" />
+</label>
+<label>Adres wykonawcy
+  <input id="provider-address" type="text" placeholder="np. ul. Długa 1, 00-001 Miasto" />
+</label>
+        <label>Branża
+          <select id="industry" required>
+            <option value="">— wybierz —</option>
+            <option value="hydraulika">usługi hydrauliczne</option>
+            <option value="elektryka">usługi elektryczne</option>
+            <option value="klimatyzacja">Instalacje klimatyzacji</option>
+            <option value="remonty">usługi remontowe</option>
+            <option value="eventy">Obsługa imprez / Eventy</option>
+            <option value="ogrody">Pielęgnacja ogrodów</option>
+          </select>
+        </label>
+        
+        <label>Klient (Nazwa firmy/osoby)
+          <input id="client-name" type="text" placeholder="Jan Kowalski lub Firma XYZ Sp. z o.o." required />
+        </label>
+        <label>Adres klienta
+          <input id="client-address" type="text" placeholder="ul. Długa 1, 00-001 Miasto" required />
+        </label>
+        <label>NIP klienta (opcjonalnie)
+          <input id="client-nip" type="text" placeholder="NIP/Pesel klienta" />
+        </label>
+
+        <h2>Warunki umowy</h2>
+        <div class="grid-2">
+            <label>Data umowy
+              <input id="date" type="date" required />
+            </label>
+            <label>Miejsce zawarcia umowy
+              <input id="place" type="text" placeholder="Miasto" required />
+            </label>
+        </div>
+        
+        <label>Opis przedmiotu umowy (tytuł zlecenia)
+          <input id="scope" type="text" placeholder="np. Instalacja pompy ciepła, Projekt strony www" required />
+        </label>
+        
+        <label>Termin realizacji
+          <input id="schedule" type="text" placeholder="np. 14 dni roboczych, do 30.11.2024" required />
+        </label>
+        
+        <label>Wartośćć usługi (netto PLN)
+          <input id="price" type="number" min="0.01" step="0.01" placeholder="np. 4500.00" required />
+        </label>
+        
+        <label>Sposób płatności
+          <input id="payment" type="text" placeholder="np. przelew 7 dni, gotówka po realizacji" />
+        </label>
+
+        <label>Zaliczka (opcjonalnie)
+          <input id="deposit" type="text" placeholder="np. 1000 PLN lub 30%" />
+        </label>
+
+        <label>Kary umowne (Opóźnienia wykonawcy)
+          <select id="penalties-enabled">
+            <option value="no">Nie</option><option value="yes">Tak</option>
+          </select>
+        </label>
+        
+        <label>Gwarancja / Rękojmia
+          <textarea id="warranty" rows="2" placeholder="np. 24 miesiące gwarancji na wykonane usługi (robocizna)."></textarea>
+        </label>
+        
+        <label>Uwagi specjalne
+          <textarea id="notes" rows="2" placeholder="np. Klient zapewnia dostęp do pomieszczeń w godzinach 8–16."></textarea>
+        </label>
+
+        <div id="industry-required-fields">
+          <!-- Pola specyficzne dla branży pojawią się tutaj -->
+        </div>
+
+        <button type="button" id="generate" class="btn-primary">Generuj umowę</button>
+        <div id="error-messages" class="error-container" style="display: none;"></div>
+      </form>
+
+      <section class="card">
+        <h2>Rekomendowane klauzule</h2>
+        <div id="clauses-panel"></div>
+        <hr style="margin:16px 0; opacity:.4;">
+        <h2>Podgląd umowy</h2>
+        <div id="preview-content" class="preview-content empty">
+          <p>Uzupełnij formularz, aby zobaczyć Podgląd umowy.</p>
+        </div>
+        
+        <div class="preview-actions">
+          <button type="button" id="apply-company" class="btn-secondary">Wstaw dane firmy (z Lokalnego Profilu)</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-actions">
+      <button type="button" id="copy-text" class="btn-primary">Skopiuj tekst</button>
+      <button type="button" id="download-pdf" class="btn-primary success-override">Pobierz PDF</button>
+      <a class="btn-primary" href="../../index.html">Wróć</a>
+    </div>
+    <div class="page-footer">
+      <div class="container">
+        <span class="footer-text">KickMy.App Tools – darmowy generator umów. Jeżeli Narzędzie jest pomocne, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+        <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+

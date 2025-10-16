@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator kosztów usług lokalnych | KickMy.App Tools</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="../theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Kalkulator kosztów usług</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Kalkulator kosztów usług lokalnych</h1>
+      <p>Kalkulator kosztów usług lokalnych dla drobnych biznesów. Szybko policz koszt swoich usług. Zapisz szablon w przeglądarce, pobierz PDF lub wyślij mailem.</p>
+    </section>
+    
+    <section class="card">
+      <h2>Ustawienia usługi</h2>
+      <div id="calcForm" class="grid">
+        <div>
+          <label for="category">Kategoria</label>
+          <select id="category" aria-describedby="category-help">
+            <option value="">— wybierz kategorię —</option>
+          </select>
+          <small id="category-help" class="hidden">Wybierz kategorię, aby załadować domyślne usługi.</small>
+        </div>
+        <div>
+          <label for="priceLevel">Poziom cen</label>
+          <select id="priceLevel">
+            <option value="low">Niski (x0.9)</option>
+            <option value="mid" selected>Średni (x1.0)</option>
+            <option value="high">Wysoki (x1.15)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="table-wrap">
+        <h3>Usługa</h3>
+        <table class="editable-table">
+          <thead>
+            <tr>
+              <th scope="col">Nazwa</th>
+              <th scope="col">Jednostka</th>
+              <th scope="col">Cena j. net</th>
+              <th scope="col">Ilość</th>
+              <th scope="col">VAT (%)</th>
+              <th scope="col">Netto</th>
+              <th scope="col">VAT</th>
+              <th scope="col">Brutto</th>
+              <th scope="col" class="action-col"></th>
+            </tr>
+          </thead>
+          <tbody id="servicesBody"></tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td colspan="5">Suma</td>
+              <td id="servicesNet">0.00</td>
+              <td id="servicesVat">0.00</td>
+              <td id="servicesGross">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-actions">
+        <button type="button" id="addServiceRow" class="btn">Dodaj wiersz</button>
+        <button type="button" id="clearServiceRows" class="btn danger">Wyczyść</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="table-wrap">
+        <h3>Materiały</h3>
+        <table class="editable-table">
+          <thead>
+            <tr>
+              <th scope="col">Nazwa</th>
+              <th scope="col">Jednostka</th>
+              <th scope="col">Cena j. net</th>
+              <th scope="col">Ilość</th>
+              <th scope="col">VAT (%)</th>
+              <th scope="col">Netto</th>
+              <th scope="col">VAT</th>
+              <th scope="col">Brutto</th>
+              <th scope="col" class="action-col"></th>
+            </tr>
+          </thead>
+          <tbody id="materialsBody"></tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td colspan="5">Suma</td>
+              <td id="materialsNet">0.00</td>
+              <td id="materialsVat">0.00</td>
+              <td id="materialsGross">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-actions">
+        <button type="button" id="addMaterialRow" class="btn">Dodaj wiersz</button>
+        <button type="button" id="clearMaterialRows" class="btn danger">Wyczyść</button>
+      </div>
+    </section>
+    
+    <section class="card">
+      <div class="table-wrap">
+        <h3>Dodatkowe</h3>
+        <table class="editable-table">
+          <thead>
+            <tr>
+              <th scope="col">Nazwa</th>
+              <th scope="col">Jednostka</th>
+              <th scope="col">Cena j. net</th>
+              <th scope="col">Ilość</th>
+              <th scope="col">VAT (%)</th>
+              <th scope="col">Netto</th>
+              <th scope="col">VAT</th>
+              <th scope="col">Brutto</th>
+              <th scope="col" class="action-col"></th>
+            </tr>
+          </thead>
+          <tbody id="extrasBody"></tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td colspan="5">Suma</td>
+              <td id="extrasNet">0.00</td>
+              <td id="extrasVat">0.00</td>
+              <td id="extrasGross">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-actions">
+        <button type="button" id="addExtraRow" class="btn">Dodaj wiersz</button>
+        <button type="button" id="clearExtraRows" class="btn danger">Wyczyść</button>
+      </div>
+    </section>
+
+    <section class="grid results">
+      <div class="card">
+        <h2>Wynik kalkulacji</h2>
+        <div class="results-grid">
+          <div><span class="label">Materiały (Netto)</span><strong id="costMaterials">0.00</strong></div>
+          <div><span class="label">Robocizna (Netto)</span><strong id="costLabor">0.00</strong></div>
+          <div><span class="label">Dodatkowe (Netto)</span><strong id="costExtras">0.00</strong></div>
+        </div>
+        <div class="results-grid main">
+          <div><span class="label">Koszt netto</span><strong id="costNet">0.00</strong></div>
+          <div><span class="label">Do zapłaty (Brutto)</span><strong id="costTotal" class="total">0.00</strong></div>
+        </div>
+        <div class="results-grid">
+          <div><span class="label">Szacowany czas (h)</span><strong id="eta">-</strong></div>
+          <div><span class="label">Szacowana stawka (PLN/h)</span><strong id="hourly">-</strong></div>
+        </div>
+        <div class="actions">
+          <button type="button" id="calcBtn" class="btn primary">Oblicz</button>
+          <button type="button" id="exportPDF" class="btn success">Pobierz PDF</button>
+          <button type="button" id="sendEmail" class="btn">Wyślij mailem</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Porównaj z konkurencją</h2>
+        <div class="compare-form">
+          <label for="competitorName">Nazwa konkurencji</label>
+          <input type="text" id="competitorName" placeholder="np. Konkurent A">
+          <label for="competitorPrice">Cena konkurencji (brutto)</label>
+          <input type="number" min="0" step="0.01" id="competitorPrice" placeholder="np. 450.00">
+          <div class="actions">
+            <button type="button" id="addCompare" class="btn">Dodaj do porównania</button>
+          </div>
+        </div>
+        <table class="results-table small" id="compareTable">
+          <thead>
+            <tr>
+              <th scope="col">Usługa</th>
+              <th scope="col">Mój koszt (PLN)</th>
+              <th scope="col">Konkurencja</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Historia (ostatnie 5)</h2>
+      <div id="history" class="history"></div>
+      <div class="actions">
+        <button type="button" id="clearHistory" class="btn danger">Wyczyść historię</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe narzędzia organizacyjne. Jesli kalkulator pomaga, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>

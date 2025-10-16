@@ -1,0 +1,304 @@
+﻿/* --- JEDNOLITE STYLE (PLANER HARMONOGRAMU) --- */
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bg: #0f172a;
+  --accent: #f97316;
+  --muted: #475569;
+  --card: #ffffff;
+  --border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+
+/* JEDNOLITE TŁO */
+body {
+  margin: 0;
+  /* Tło z gradientem z Planera */
+  background: linear-gradient(180deg, #0f172a 0%, #f1f5f9 65%, #fff 100%);
+  color:#e2e8f0;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(1080px, 94vw);
+  margin: 0 auto;
+}
+
+.page-header,
+.page-footer {
+  color: #f1f5f9;
+}
+
+/* JEDNOLITY HEADER */
+.page-header .container {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* JEDNOLITA I WYŚRODKOWANA STOPKA */
+.page-footer .container {
+  display: flex;
+  gap: 8px; 
+  align-items: center;
+  justify-content: center; /* Wyśrodkowanie w poziomie */
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+.page-footer {
+  background: rgba(15,23,42,0.92);
+  font-size: 14px;
+  text-align: center;
+}
+
+.page-footer a { color: #fbd38d; }
+
+.brand {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.breadcrumbs {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.breadcrumbs a { color: #e2e8f0; text-decoration: none; }
+
+/* JEDNOLITA SEKCJA HERO/INTRO (białe tytuły i podtytuły) */
+.intro {
+  margin: 64px auto 36px;
+  text-align: center;
+  color:#e2e8f0;
+  width: min(720px, 100%);
+}
+
+.intro h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.intro p {
+  margin: 0;
+  color: #e2e8f0; /* Kolor biały dla podtytułu */
+}
+
+/* JEDNOLITE KARTY */
+.card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 28px;
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: 0 24px 50px rgba(15,23,42,0.35);
+  color: var(--bg); /* Wprowadzamy kolor dla tekstu w karcie (ciemny) */
+}
+
+/* JEDNOLITE LABELE */
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* JEDNOLITE INPUTY (jasny tekst na ciemnym tle w kartach) */
+select,
+input {
+  padding: 12px;
+  border-radius: 12px;
+  border:1px solid rgba(148,163,184,0.25);
+  font: inherit;
+  /* Zmienione na ciemne tło w inputach - spójne z Planerem */
+  background: rgba(15,23,42,0.9);
+  color: #e2e8f0;
+}
+
+/* JEDNOLITE PRZYCISKI */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Dostosowanie klas przycisków do jednolitego wzoru (btn-primary -> primary, btn-secondary -> btn) */
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { background: #e2e8f0; color: var(--bg); }
+
+.btn-primary:hover,
+.btn-secondary:hover { transform: translateY(-2px); }
+
+
+/* JEDNOLITY TEKST W STOPCE */
+.footer-text {
+    line-height: 1.4;
+    color: #f1f5f9;
+}
+
+/* JEDNOLITY PRZYCISK W STOPCE */
+.btn-buy-coffee {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+  
+  background: var(--accent); 
+  color: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4); 
+}
+
+.btn-buy-coffee:hover {
+  background: transparent;
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+/* --- KONIEC JEDNOLITYCH STYLÓW --- */
+
+
+/* --- UNIKALNE STYLE GENERATORA (NIEZMIENIONE) --- */
+
+.controls .grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 20px;
+}
+
+.ideas-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 32px 0;
+}
+
+.idea-card {
+  background: rgba(15,23,42,0.9);
+  color: #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(148,163,184,0.25);
+  box-shadow: 0 24px 50px rgba(15,23,42,0.35);
+  display: grid;
+  gap: 12px;
+}
+
+.idea-card textarea {
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(148,163,184,0.28);
+  background: rgba(15,23,42,0.7);
+  color: #e2e8f0;
+  font: inherit;
+  resize: vertical;
+}
+
+.idea-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.idea-actions button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.idea-actions .copy { background: #2563eb; color: #fff; }
+.idea-actions .favorite { background: #f97316; color: #fff; }
+.idea-actions .remove { background: #fee2e2; color: #b91c1c; }
+
+.favorites-list {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.favorites-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(15,23,42,0.9);
+  color: #e2e8f0;
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,0.25);
+}
+
+.favorites-item button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(248,250,252,0.12);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  cursor: pointer;
+}
+
+.empty {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* --- RESPONSYWNOŚĆ --- */
+
+@media (max-width: 640px) {
+  .actions { flex-direction: column; align-items: stretch; }
+  .favorites-item { flex-direction: column; align-items: stretch; }
+  .favorites-item button { align-self: flex-end; }
+  
+  .page-header .container {
+    justify-content: center;
+    text-align: center;
+  }
+  .breadcrumbs { display: none; }
+  
+  /* Wyśrodkowanie w stopce na mobile */
+  .page-footer .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px; 
+  }
+  .btn-buy-coffee {
+    width: 100%;
+    margin-top: 0;
+  }
+  .desktop-only {
+    display: none;
+  }
+}

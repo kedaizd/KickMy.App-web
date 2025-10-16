@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator pomyslow na oferte - KickMy Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Generator pomyslow</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Generator pomyslow na menu lub uslugi</h1>
+      <p>Szukanie inspiracji dla pizzerii, salonu kosmetycznego czy innego biznesu? Wylosuj i edytuj propozycje, dodawaj wlasne i zapisuj ulubione pomysly.</p>
+    </section>
+
+    <section class="card controls">
+      <h2>Wybierz branze i nastr&oacute;j</h2>
+      <div class="grid">
+        <label>Kategoria bazowa
+          <select id="category">
+            <option value="pizza">Pizzeria</option>
+            <option value="salon">Salon kosmetyczny</option>
+            <option value="mix">Mix kreatywny</option>
+          </select>
+        </label>
+        <label>Styl / nastroj
+          <select id="style">
+            <option value="classic">Klasycznie</option>
+            <option value="seasonal">Sezonowo</option>
+            <option value="premium">Premium</option>
+            <option value="fun">Na luzie</option>
+          </select>
+        </label>
+        <label>Liczba pomyslow
+          <input type="number" id="count" min="1" max="5" value="3" />
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" id="generate" class="btn-primary">Losuj pomysly</button>
+        <button type="button" id="add-own" class="btn-secondary">Dodaj wlasny pomysl</button>
+      </div>
+    </section>
+
+    <section class="ideas-grid" id="ideas"></section>
+
+    <section class="card favorites">
+      <h2>Ulubione pomysly</h2>
+      <p>Zapisane lokalnie w przegladarce – mozesz je wczytac, edytowac lub usunac.</p>
+      <ul id="favorites" class="favorites-list"></ul>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe inspiracje dla mikro firm. Jesli generator pomaga, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>

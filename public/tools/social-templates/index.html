@@ -1,0 +1,126 @@
+﻿﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kolekcja szablonów social media - KickMy Tools</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="../theme.css" />
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <a class="brand" href="../../index.html">KickMy.App Tools</a>
+      <nav class="breadcrumbs">
+        <a href="../../index.html">Start</a>
+        <span>/</span>
+        <span>Szablony social media</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>Darmowe szablony postów social media</h1>
+      <p>Gotowe teksty i grafiki (placeholdery), które możesz spersonalizować jednym kliknięciem. Ułatwiają regularną promocję zabiegów, usług serwisowych, promocji sezonowych i "przed/po".</p>
+    </section>
+
+    <section class="controls card">
+      <h2>Personalizacja</h2>
+      <div class="grid">
+        <label>Nazwa marki
+          <input type="text" id="brand" placeholder="np. Studio Glam" />
+        </label>
+        <label>Pole specjalizacji
+          <input type="text" id="niche" placeholder="np. kosmetologia / detailing / mechanika" />
+        </label>
+        <label>Hashtag główny
+          <input type="text" id="hashtag" placeholder="np. #studioglampl" />
+        </label>
+      </div>
+      <div class="actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+        <button type="button" id="apply-profile" class="btn-secondary">Wczytaj z profilu firmy</button>
+      </div>
+    </section>
+
+    <section class="templates-grid" id="templates">
+      
+      <article class="template-card">
+        <div class="template-meta">
+          <span class="pill">Promocja / Rabat</span>
+          <h3>Oferta tygodnia</h3>
+        </div>
+        <figure class="template-visual">
+          <div class="placeholder promo">-20%</div>
+        </figure>
+        <textarea readonly rows="6" data-template="promo">Oferta tygodnia w [BRAND]!
+
+Zabieg / usługa [NICHE] tańsza o 20% do najbliższej soboty.
+Rezerwuj termin: DM lub telefon 123 456 789.
+
+Dla stałych klientów dodatkowy mini-upominek. [HASHTAG]</textarea>
+        <button type="button" class="btn-secondary copy-template">Skopiuj tekst</button>
+      </article>
+
+      <article class="template-card">
+        <div class="template-meta">
+          <span class="pill">Relacja / Stories</span>
+          <h3>Co dzieje się dziś?</h3>
+        </div>
+        <figure class="template-visual">
+          <div class="placeholder stories">LIVE</div>
+        </figure>
+        <textarea readonly rows="6" data-template="stories">Dzisiaj w [BRAND]:
+
+08:00 – Przygotowanie stanowisk do [NICHE]
+12:00 – Prace nad projektem dla @klient
+15:00 – Konsultacje i planowanie kolejnych usług
+
+Odwiedź nas lub napisz: pokażemy kulisy pracy! [HASHTAG]</textarea>
+        <button type="button" class="btn-secondary copy-template">Skopiuj tekst</button>
+      </article>
+      
+      <article class="template-card">
+        <div class="template-meta">
+          <span class="pill">Przed / Po</span>
+          <h3>Metamorfoza</h3>
+        </div>
+        <figure class="template-visual grid-2">
+          <div class="placeholder before">PRZED</div>
+          <div class="placeholder after">PO</div>
+        </figure>
+        <textarea readonly rows="6" data-template="before-after">To się nazywa metamorfoza!
+
+Zrobiliśmy to dla klienta - efekt przekroczył oczekiwania. Daj znać w komentarzu, czy Ci się podoba!
+Rezerwacja terminów [NICHE]: DM lub telefon. [HASHTAG] [BRAND]</textarea>
+        <button type="button" class="btn-secondary copy-template">Skopiuj tekst</button>
+      </article>
+
+      <article class="template-card">
+        <div class="template-meta">
+          <span class="pill">Edukacja / Wskazówka</span>
+          <h3>Szybka porada</h3>
+        </div>
+        <figure class="template-visual grid-1">
+          <div class="placeholder tip">TIP</div>
+        </figure>
+        <textarea readonly rows="6" data-template="tip">Zapisz ten post, jeśli zmagasz się z [PROBLEM]!
+
+Szybka porada od [BRAND]: Zawsze pamiętaj o [DZIAŁANIE]. To podstawa!
+
+Więcej na temat [NICHE] w kolejnych postach. [HASHTAG]</textarea>
+        <button type="button" class="btn-secondary copy-template">Skopiuj tekst</button>
+      </article>
+
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="container">
+      <span class="footer-text">KickMy.App Tools – darmowe szablony social media. Jeżeli narzędzie Ci pomaga, <span class="desktop-only">rozważ wsparcie projektu:</span></span>
+      <a href="https://buycoffee.to/kickmyapp" target="_blank" rel="noopener" class="btn-buy-coffee">☕ Postaw mi kawę</a>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
